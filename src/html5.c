@@ -8,7 +8,7 @@
 
 void html5_render_escaped(FILE *fstream, const char *string) {
     const char *escaped_chars[UINT8_MAX] = {
-        ['&'] = "&amp;", ['"'] = "&quot;", ['\''] = "#x27;", ['<'] = "&lt;", ['>'] = "&gt;",
+        ['&'] = "&amp;", ['"'] = "&quot;", ['\''] = "&#x27;", ['<'] = "&lt;", ['>'] = "&gt;",
     };
 
     const char *s = string;
