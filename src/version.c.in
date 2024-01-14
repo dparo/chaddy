@@ -1,0 +1,20 @@
+// SPDX-FileCopyrightText: 2023 Davide Paro
+//
+// SPDX-License-Identifier: MIT
+
+#include "version.h"
+
+const char *const PROJECT_NAME = "@PROJECT_NAME@";
+const char *const PROJECT_DESCRIPTION = "@PROJECT_DESCRIPTION@";
+const char *const PROJECT_VERSION = "@PROJECT_VERSION@";
+const char *const PROJECT_VERSION_MAJOR = "@PROJECT_VERSION_MAJOR@";
+const char *const PROJECT_VERSION_MINOR = "@PROJECT_VERSION_MINOR@";
+const char *const PROJECT_VERSION_PATCH = "@PROJECT_VERSION_PATCH@";
+
+const char *const BUILD_TYPE = "@CMAKE_BUILD_TYPE@";
+const char *const C_COMPILER_ID = "@CMAKE_C_COMPILER_ID@";
+const char *const C_COMPILER_ABI = "@CMAKE_C_COMPILER_ABI@";
+const char *const C_COMPILER_VERSION = "@CMAKE_C_COMPILER_VERSION@";
+const char *const GIT_SHA1 = "@GIT_SHA1@";
+const char *const GIT_DATE = "@GIT_DATE@";
+const char *const GIT_COMMIT_SUBJECT = "@GIT_COMMIT_SUBJECT@";

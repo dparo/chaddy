@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2023 Davide Paro
+#
+# SPDX-License-Identifier: MIT
+
+format:
+  line_width: 80
+  tab_size: 4
+  use_tabchars: false
+  fractional_tab_policy: use-space
+  dangle_parens: false
+  dangle_align: prefix
+  line_ending: unix
+  command_case: canonical
+  keyword_case: canonical
+  always_wrap: []
+  enable_sort: true

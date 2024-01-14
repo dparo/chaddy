@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2023 Davide Paro
+#
+# SPDX-License-Identifier: MIT
+
+---
+BasedOnStyle: LLVM
+UseTab: Never
+TabWidth: 8
+IndentWidth: 4
+ColumnLimit: 100
+SortIncludes: false
+AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: true
+SpaceAfterTemplateKeyword: true

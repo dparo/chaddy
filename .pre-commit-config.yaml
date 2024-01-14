@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2023 Davide Paro
+#
+# SPDX-License-Identifier: MIT
+
+repos:
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v1.1.2
+    hooks:
+        - id: reuse
+          name: Add SPDX headers
+          args:
+            - annotate
+            - --copyright=Davide Paro
+            - --license=MIT
+            - --skip-unrecognised
+          pass_filenames: true
+        - id: reuse
+          name: reuse lint
+          args: [lint]
+
+  # - repo: https://github.com/cmake-lint/cmake-lint
+  #   rev: 1.4.2
+  #   hooks:
+  #     - id: cmakelint
+
+  - repo: local
+    hooks:
+    - id: cmake
+      name: Build and test project with ASAN
+      description: Build and test project with ASAN
+      entry: cmake --workflow --preset debug-asan
+      language: 'system'
+      exclude: README.md
+      pass_filenames: false
+
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-format
+        args: [-i]
+      - id: clang-tidy
+      - id: cppcheck
+      # - id: cpplint
+      # - id: include-what-you-use

@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2023 Davide Paro
+#
+# SPDX-License-Identifier: MIT
+
+/.git
+/Dockerfile
+docker/
+
+/dist
+/build
+/target
+/tmp
+/coverage
+
+node_modules
+cache
+
+.gdb_history
+.log
+.cache
+*.swp
+
+__pycache__
+/.venv
+/venv
+/pyvenv.cfg
+

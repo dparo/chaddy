@@ -1,0 +1,197 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Config",
+      "description": "Default build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/target/${presetName}",
+      "environment": {},
+      "cacheVariables": {},
+      "hidden": true
+    },
+    {
+      "name": "debug",
+      "inherits": ["default"],
+      "displayName": "Debug config",
+      "description": "Default debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ASAN": false,
+        "ASAN_ENABLED": "OFF",
+        "TSAN": false,
+        "TSAN_ENABLED": "OFF",
+        "CODE_COVERAGE": true
+      }
+    },
+    {
+      "name": "debug-asan",
+      "inherits": ["debug"],
+      "displayName": "Debug config (ASAN)",
+      "description": "Default debug build (ASAN)",
+      "cacheVariables": {
+        "ASAN": true,
+        "ASAN_ENABLED": "ON",
+        "TSAN": false,
+        "TSAN_ENABLED": "OFF"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": ["default"],
+      "displayName": "Release config",
+      "description": "Default Release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ASAN_ENABLED": "OFF",
+        "BUILD_DOC": "ON"
+      }
+    },
+    {
+      "name": "win-x64",
+      "inherits": ["default"],
+      "displayName": "Windows-only configuration",
+      "description": "This build is only available on Windows",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "hidden": true
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "inherits": ["default"]
+    },
+    {
+      "name": "debug-asan",
+      "configurePreset": "debug-asan",
+      "inherits": ["default"]
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "inherits": ["default"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configuration": "debug",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configuration": "Debug",
+      "configurePreset": "debug",
+      "inherits": ["default"]
+    },
+    {
+      "name": "debug-asan",
+      "configuration": "Debug",
+      "configurePreset": "debug-asan",
+      "inherits": ["default"]
+    },
+    {
+      "name": "release",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "release",
+      "inherits": ["default"]
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "hidden": true,
+      "generators": ["TGZ"]
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "inherits": ["default"]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "debug",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "debug"
+        },
+        {
+          "type": "build",
+          "name": "debug"
+        },
+        {
+          "type": "test",
+          "name": "debug"
+        }
+      ]
+    },
+    {
+      "name": "debug-asan",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "debug-asan"
+        },
+        {
+          "type": "build",
+          "name": "debug-asan"
+        },
+        {
+          "type": "test",
+          "name": "debug-asan"
+        }
+      ]
+    },
+    {
+      "name": "release",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "release"
+        },
+        {
+          "type": "build",
+          "name": "release"
+        },
+        {
+          "type": "test",
+          "name": "release"
+        },
+        {
+          "type": "package",
+          "name": "release"
+        }
+      ]
+    }
+  ],
+  "vendor": {
+    "example.com/ExampleIDE/1.0": {
+      "autoFormat": false
+    }
+  }
+}

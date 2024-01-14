@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2023 Davide Paro
+#
+# SPDX-License-Identifier: MIT
+
+WarningsAsErrors: ""
+HeaderFilterRegex: ""
+FormatStyle: none
+Checks: "-*,clang-diagnostic-*,clang-analyzer-*,clang-analyzer-cplusplus-*,cppcoreguidelines-*,bugprone-*,concurrency-*,performance-*,portability-*,readability-*,misc-*"
