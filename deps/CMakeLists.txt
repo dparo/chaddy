@@ -3,17 +3,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-file(
-    DOWNLOAD
-    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.7/CPM.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-    EXPECTED_HASH SHA256=83e5eb71b2bbb8b1f2ad38f1950287a057624e385c238f6087f94cdfc44af9c5
-)
-
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-
-CPMAddPackage("https://git.cryptomilk.org/projects/cmocka.git#cmocka-1.1.7")
-
 set(FETCHCONTENT_QUIET
     off
     CACHE BOOL "" FORCE)
@@ -45,6 +34,20 @@ include(FetchContent)
 include(ExternalProject)
 find_package(Git REQUIRED)
 find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
+
+
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.7/CPM.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake"
+    EXPECTED_HASH SHA256=83e5eb71b2bbb8b1f2ad38f1950287a057624e385c238f6087f94cdfc44af9c5
+)
+
+# set(CPM_SOURCE_CACHE "${CMAKE_SOURCE_DIR}/_deps")
+include("${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake")
+
+CPMAddPackage("https://git.cryptomilk.org/projects/cmocka.git#cmocka-1.1.7")
+CPMAddPackage("https://github.com/libuv/libuv.git#v1.47.0")
 
 
 # Define custom Fetch function for submodules. If classical CMAKE
@@ -96,32 +99,19 @@ function(FetchArchiveConfigureAndMakeAndInstall name url)
     endif()
 endfunction()
 
-set(ARGTABLE3_ENABLE_CONAN
-    OFF
-    CACHE BOOL "Enable Conan dependency manager")
-set(ARGTABLE3_ENABLE_TESTS
-    OFF
-    CACHE BOOL "Enable unit tests")
-set(ARGTABLE3_ENABLE_EXAMPLES
-    OFF
-    CACHE BOOL "Enable examples")
+set(ARGTABLE3_ENABLE_CONAN OFF CACHE BOOL "Enable Conan dependency manager")
+set(ARGTABLE3_ENABLE_TESTS OFF CACHE BOOL "Enable unit tests")
+set(ARGTABLE3_ENABLE_EXAMPLES OFF CACHE BOOL "Enable examples")
 
 if(BUILD_DOC)
-    fetchgitsubmodule("${DEPS_DIR}/doxygen-awesome-css")
+    FetchGitSubmodule("${DEPS_DIR}/doxygen-awesome-css")
 endif()
 
-fetchgitsubmodule("${DEPS_DIR}/debugbreak")
-fetchgitsubmodule("${DEPS_DIR}/log.c")
-fetchgitsubmodule("${DEPS_DIR}/Unity")
-fetchgitsubmodule("${DEPS_DIR}/argtable3")
-fetchgitsubmodule("${DEPS_DIR}/hedley")
-
-# SET(FETCHCONTENT_SOURCE_DIR_LIBUV "${CMAKE_SOURCE_DIR}/deps/libuv")
-FetchContent_Declare(
-    libuv
-    GIT_REPOSITORY https://github.com/libuv/libuv
-    GIT_TAG v1.44.2)
-FetchContent_MakeAvailable(libuv)
+FetchGitSubmodule("${DEPS_DIR}/debugbreak")
+FetchGitSubmodule("${DEPS_DIR}/log.c")
+FetchGitSubmodule("${DEPS_DIR}/Unity")
+FetchGitSubmodule("${DEPS_DIR}/argtable3")
+FetchGitSubmodule("${DEPS_DIR}/hedley")
 
 # Customize debubbreak
 add_library(debugbreak INTERFACE)
