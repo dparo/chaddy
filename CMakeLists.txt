@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2023 Davide Paro
+# SPDX-FileCopyrightText: 2024 Davide Paro
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,6 +10,7 @@ project(
     VERSION 0.1.0
     DESCRIPTION "Chaddy: A uFE/BE stack in C11"
 )
+
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 
@@ -48,11 +50,6 @@ if(BUILD_DOC)
     find_package(Doxygen OPTIONAL_COMPONENTS mscgen dia dot)
 endif()
 
-if(NOT BUILD_DOC OR NOT DOXYGEN_FOUND)
-    # stub
-    function(doxygen_add_docs)
-    endfunction()
-endif()
 
 option(
     ASAN_ENABLED

@@ -50,8 +50,10 @@ set_target_properties("mypy-src" PROPERTIES ENVIRONMENT "${PYTHON_ENV_PROP}")
 
 # generate version.c
 configure_file("version.c.in" "${CMAKE_CURRENT_BINARY_DIR}/version.c" @ONLY)
-doxygen_add_docs(docs "${CMAKE_SOURCE_DIR}/src/"
-                 WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+if(BUILD_DOC)
+    doxygen_add_docs(docs "${CMAKE_SOURCE_DIR}/src/"
+                     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+endif()
 
 add_library(libmain sum.c html5.c)
 target_include_directories(libmain PUBLIC ./)

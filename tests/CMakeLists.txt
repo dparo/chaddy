@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2023 Davide Paro
+# SPDX-FileCopyrightText: 2024 Davide Paro
 #
 # SPDX-License-Identifier: MIT
 
-set(TEST_SOURCES_LIST "simple.c" "std.c")
+set(TEST_SOURCES_LIST "simple.c" "std.c" "cmocka_test.c")
 set(TEST_PYTHON_LIST "test_py.py")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -16,6 +17,7 @@ foreach(SRC IN LISTS TEST_SOURCES_LIST)
 
     add_executable("${TARGET}" "${SRC}")
     target_link_libraries("${TARGET}" PRIVATE unity)
+    target_link_libraries("${TARGET}" PRIVATE cmocka)
     target_link_libraries("${TARGET}" PRIVATE libmain)
     target_link_libraries("${TARGET}" PRIVATE logc)
     target_include_directories("${TARGET}" PRIVATE ./ ../src)
