@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2023 Davide Paro
+# SPDX-FileCopyrightText: 2024 Davide Paro
 #
 # SPDX-License-Identifier: MIT
 
@@ -40,5 +41,6 @@ repos:
         args: [-i]
       - id: clang-tidy
       - id: cppcheck
+        args: [-q, --error-exitcode=1, --enable=all, "--suppress=unmatchedSuppression", "--suppress=missingIncludeSystem", "--suppress=missingInclude", "--suppress=unusedFunction"]
       # - id: cpplint
       # - id: include-what-you-use

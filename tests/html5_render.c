@@ -11,17 +11,15 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "std.h"
 #include "html5.h"
 
 typedef struct TestState {
     char *input;
-    char *expected;
+    char *expected_output;
 
     FILE *f;
     char *buf;
 } TestState;
-
 
 static int test_setup(void **_state) {
     size_t bufsize = 64 * 1024;
@@ -41,8 +39,10 @@ static int test_setup(void **_state) {
 
 static int test_teardown(void **_state) {
     TestState *state = *_state;
-    if (state->f) fclose(state->f);
-    if (state->buf) free(state->buf);
+    if (state->f)
+        fclose(state->f);
+    if (state->buf)
+        free(state->buf);
     return 0;
 }
 
@@ -50,23 +50,22 @@ static void test_html5_render_escaped(void **_state) {
     TestState *state = *_state;
     html5_render_escaped(state->f, state->input);
     fflush(state->f);
-    assert_string_equal(state->buf, state->expected);
+    assert_string_equal(state->buf, state->expected_output);
 }
 
 int main(int argc, char **argv) {
-     const struct CMUnitTest html5_render_escaped[] = {
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = NULL, .expected = "" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "", .expected = "" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "foo", .expected = "foo" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "'", .expected = "&#x27;" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "\"", .expected = "&quot;" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "<", .expected = "&lt;" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = ">", .expected = "&gt;" })  ),
-        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "<a href=\"ThreadSanitizer.html\">ThreadSanitizer</a>", .expected = "&lt;a href=&quot;ThreadSanitizer.html&quot;&gt;ThreadSanitizer&lt;/a&gt;" })  ),
-     };
+    const struct CMUnitTest html5_render_escaped[] = {
+        // clang-format off
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = NULL, .expected_output = "" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "", .expected_output = "" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "foo", .expected_output = "foo" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "'", .expected_output = "&#x27;" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "\"", .expected_output = "&quot;" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "<", .expected_output = "&lt;" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = ">", .expected_output = "&gt;" })  ),
+        cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "<a href=\"ThreadSanitizer.html\">ThreadSanitizer</a>", .expected_output = "&lt;a href=&quot;ThreadSanitizer.html&quot;&gt;ThreadSanitizer&lt;/a&gt;" })  ),
+        // clang-format on
+    };
 
-     return cmocka_run_group_tests(html5_render_escaped, NULL, NULL);
-
+    return cmocka_run_group_tests(html5_render_escaped, NULL, NULL);
 }
-
-
