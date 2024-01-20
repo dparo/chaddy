@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-set(TEST_SOURCES_LIST "simple.c" "std.c" "cmocka_test.c")
+set(TEST_SOURCES_LIST "simple.c" "std.c" "html5_render.c")
 set(TEST_PYTHON_LIST "test_py.py")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")

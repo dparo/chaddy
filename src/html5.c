@@ -7,6 +7,10 @@
 #include <string.h>
 
 void html5_render_escaped(FILE *fstream, const char *string) {
+    if (string == NULL) {
+        return;
+    }
+
     const char *escaped_chars[UINT8_MAX] = {
         ['&'] = "&amp;", ['"'] = "&quot;", ['\''] = "&#x27;", ['<'] = "&lt;", ['>'] = "&gt;",
     };
