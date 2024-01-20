@@ -54,7 +54,7 @@ static void test_html5_render_escaped(void **_state) {
 }
 
 int main(int argc, char **argv) {
-     const struct CMUnitTest tests[] = {
+     const struct CMUnitTest html5_render_escaped[] = {
         cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = NULL, .expected = "" })  ),
         cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "", .expected = "" })  ),
         cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "foo", .expected = "foo" })  ),
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
         cmocka_unit_test_prestate_setup_teardown(test_html5_render_escaped, test_setup, test_teardown, & ((TestState) { .input = "<a href=\"ThreadSanitizer.html\">ThreadSanitizer</a>", .expected = "&lt;a href=&quot;ThreadSanitizer.html&quot;&gt;ThreadSanitizer&lt;/a&gt;" })  ),
      };
 
-     return cmocka_run_group_tests(tests, NULL, NULL);
+     return cmocka_run_group_tests(html5_render_escaped, NULL, NULL);
 
 }
 
