@@ -102,10 +102,11 @@ void html5_render_end(HtmlRenderer *const r);
          !_block_inner_cnt; _block_inner_cnt = 1, html5_render_end(r))
 
 #define DIV(r, ...) HTML_ELEM(r, "div", __VA_ARGS__)
+#define H1(r, ...) HTML_ELEM(r, "h1", __VA_ARGS__)
 
 #define HTML5_RAW_STRING(r, s)                                                                     \
     do {                                                                                           \
-        html5_render_escaped(r->fstream, s)                                                        \
+        html5_render_escaped(r->fstream, s);                                                        \
     } while (0)
 
 #if __cplusplus

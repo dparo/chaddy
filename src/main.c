@@ -8,7 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "std.h"
 #include "version.h"
+#include "html5.h"
 
 #include <log.h>
 #include <argtable3.h>
@@ -25,6 +34,58 @@ static void print_use_help_for_more_information(const char *progname);
 static int main2(const char **defines, int32_t num_defines) {
     (void)defines;
     (void)num_defines;
+
+    int listenfd = 0, connfd = 0;
+    struct sockaddr_in serv_addr;
+
+    char sendBuff[1025];
+    time_t ticks;
+
+    listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    memset(&serv_addr, '0', sizeof(serv_addr));
+    memset(sendBuff, '0', sizeof(sendBuff));
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port = htons(5000);
+
+    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+
+    listen(listenfd, 10);
+
+    while(1)
+    {
+        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+
+        FILE *conn = fdopen(connfd, "w");
+        char buffer[64 * 1024] = {0};
+        FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
+
+        HtmlRenderer r = {0};
+        r.fstream = f;
+
+        H1(&r, {}) {
+            html5_render_escaped(r.fstream, "Hello world");
+        }
+
+        fflush(f);
+        fseek(f, 0L, SEEK_END);
+        long int sz = ftell(f);
+
+
+        fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
+        fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
+        fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
+        fprintf(conn, "%s: %s\r\n", "Connection", "close");
+        fprintf(conn, "\r\n");
+        fflush(conn);
+
+        write(connfd, buffer, (size_t) sz);
+
+        fclose(f);
+        // close(connfd);
+     }
+
     return EXIT_SUCCESS;
 }
 
