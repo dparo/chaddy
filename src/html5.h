@@ -17,6 +17,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 #include "std.h"
+#include "builtins.h"
 
 #define HTML_ATTRIB_KEY_MAX_SIZE 32
 #define HTML_MAX_NUM_ATTRS 64
@@ -96,9 +97,8 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
 void html5_render_end(HtmlRenderer *const r);
 
 #define HTML_ELEM(r, tag, ...)                                                                     \
-    for (int _block_inner_cnt = 0,                                                                 \
-             _ = html5_render_begin(r, tag, ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
-                                    (HtmlAttrib[]){__VA_ARGS__, {NULL, NULL}});                    \
+    for ( int _block_inner_cnt = (html5_render_begin(r, tag, ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
+                                    (HtmlAttrib[]){__VA_ARGS__, {NULL, NULL}}), 0);                    \
          !_block_inner_cnt; _block_inner_cnt = 1, html5_render_end(r))
 
 #define DIV(r, ...) HTML_ELEM(r, "div", __VA_ARGS__)

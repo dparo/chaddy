@@ -22,6 +22,12 @@
 #define ATTRIB_CONST HEDLEY_CONST
 
 #ifdef __GNUC__
+#define ATTRIB_UNUSED __attribute__((unused))
+#else
+#define ATTRIB_UNUSED
+#endif
+
+#ifdef __GNUC__
 #define ATTRIB_ASSUME_ALIGNED(...) __attribute__((__assume_aligned__(__VA_ARGS__)))
 #else
 #endif
