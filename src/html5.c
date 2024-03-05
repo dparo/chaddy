@@ -30,6 +30,44 @@ void html5_render_escaped(FILE *fstream, const char *string) {
     fprintf(fstream, "%s", s);
 }
 
+
+static void render_attrs(HtmlRenderer *const r, size_t num_attribs,
+                         const HtmlAttrib attribs[]) {
+    for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
+        const char *key = attribs[i].key;
+        const char *value = attribs[i].value;
+
+        if (key && value) {
+            html5_render_escaped(r->fstream, key);
+            fprintf(r->fstream, "=\"");
+            html5_render_escaped(r->fstream, value);
+            fprintf(r->fstream, "\" ");
+        } else if (key) {
+            // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
+            // value="foo" selected />
+            html5_render_escaped(r->fstream, key);
+        }
+    }
+}
+
+void html5_render_self_closing(HtmlRenderer *const r, const char *tag,
+                              size_t num_attribs,
+                              const HtmlAttrib attribs[]) {
+    tag = tag ? tag : "";
+    if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
+        return;
+    }
+
+    if (tag != NULL && *tag != '\0') {
+        fprintf(r->fstream, "<");
+        html5_render_escaped(r->fstream, tag);
+        fprintf(r->fstream, " ");
+        render_attrs(r, num_attribs, attribs);
+        fprintf(r->fstream, ">");
+    }
+    return;
+}
+
 int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
                        const HtmlAttrib attribs[]) {
     tag = tag ? tag : "";
@@ -44,25 +82,10 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
         fprintf(r->fstream, "<");
         html5_render_escaped(r->fstream, tag);
         fprintf(r->fstream, " ");
-
-        for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
-            const char *key = attribs[i].key;
-            const char *value = attribs[i].value;
-
-            if (key && value) {
-                html5_render_escaped(r->fstream, key);
-                fprintf(r->fstream, "=\"");
-                html5_render_escaped(r->fstream, value);
-                fprintf(r->fstream, "\" ");
-            } else if (key) {
-                // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
-                // value="foo" selected />
-                html5_render_escaped(r->fstream, key);
-            }
-        }
-
-        fprintf(r->fstream, ">");
+        render_attrs(r, num_attribs, attribs);
+        fprintf(r->fstream, "/>");
     }
+
     return 0;
 }
 
