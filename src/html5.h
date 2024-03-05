@@ -100,14 +100,14 @@ void html5_render_self_closing(HtmlRenderer *const r, const char *tag, size_t nu
 
 #define HTML_SELF_CLOSING_ELEM(r, tag, ...)                                                        \
     do {                                                                                           \
-        html5_render_self_closing(r, (tag), ARRAY_LEN(((HtmlAttrib[])__VA_ARGS__)),                \
-                                  (HtmlAttrib[])__VA_ARGS__);                                      \
+        html5_render_self_closing(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
+                                  (HtmlAttrib[]){__VA_ARGS__});                                    \
     } while (0)
 
 #define HTML_BLOCK(r, tag, ...)                                                                    \
     for (int _block_inner_cnt =                                                                    \
-             (html5_render_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[])__VA_ARGS__)),                 \
-                                 (HtmlAttrib[])__VA_ARGS__),                                       \
+             (html5_render_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),               \
+                                 (HtmlAttrib[]){__VA_ARGS__}),                                     \
               0);                                                                                  \
          !_block_inner_cnt; _block_inner_cnt = 1, html5_render_end(r))
 
