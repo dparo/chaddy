@@ -30,9 +30,9 @@ void html5_render_escaped(FILE *fstream, const char *string) {
     fprintf(fstream, "%s", s);
 }
 
-
-static void render_attrs(HtmlRenderer *const r, size_t num_attribs,
-                         const HtmlAttrib attribs[]) {
+static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAttrib attribs[]) {
+    if (num_attribs > 0)
+        fprintf(r->fstream, " ");
     for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
         const char *key = attribs[i].key;
         const char *value = attribs[i].value;
@@ -50,9 +50,8 @@ static void render_attrs(HtmlRenderer *const r, size_t num_attribs,
     }
 }
 
-void html5_render_self_closing(HtmlRenderer *const r, const char *tag,
-                              size_t num_attribs,
-                              const HtmlAttrib attribs[]) {
+void html5_render_self_closing(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+                               const HtmlAttrib attribs[]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return;
@@ -61,8 +60,6 @@ void html5_render_self_closing(HtmlRenderer *const r, const char *tag,
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
         html5_render_escaped(r->fstream, tag);
-        if (num_attribs > 0)
-            fprintf(r->fstream, " ");
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, "/>");
     }
@@ -82,8 +79,6 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
         html5_render_escaped(r->fstream, tag);
-        if (num_attribs > 0)
-            fprintf(r->fstream, " ");
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, ">");
     }
