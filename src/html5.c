@@ -32,6 +32,7 @@ void html5_render_escaped(FILE *fstream, const char *string) {
 
 int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
                        const HtmlAttrib attribs[]) {
+    tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return 0;
     }
@@ -39,26 +40,29 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
     strncpy(r->stack[r->depth], tag, HTML_RENDERER_MAX_TAG_LEN + 1);
     ++r->depth;
 
-    fprintf(r->fstream, "<");
-    html5_render_escaped(r->fstream, tag);
-    fprintf(r->fstream, " ");
+    if (tag != NULL && *tag != '\0') {
+        fprintf(r->fstream, "<");
+        html5_render_escaped(r->fstream, tag);
+        fprintf(r->fstream, " ");
 
-    for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
-        const char *key = attribs[i].key;
-        const char *value = attribs[i].value;
+        for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
+            const char *key = attribs[i].key;
+            const char *value = attribs[i].value;
 
-        if (key && value) {
-            html5_render_escaped(r->fstream, key);
-            fprintf(r->fstream, "=\"");
-            html5_render_escaped(r->fstream, value);
-            fprintf(r->fstream, "\" ");
-        } else if (key) {
-            // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option value="foo" selected />
-            html5_render_escaped(r->fstream, key);
+            if (key && value) {
+                html5_render_escaped(r->fstream, key);
+                fprintf(r->fstream, "=\"");
+                html5_render_escaped(r->fstream, value);
+                fprintf(r->fstream, "\" ");
+            } else if (key) {
+                // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
+                // value="foo" selected />
+                html5_render_escaped(r->fstream, key);
+            }
         }
-    }
 
-    fprintf(r->fstream, ">");
+        fprintf(r->fstream, ">");
+    }
     return 0;
 }
 
@@ -69,7 +73,11 @@ void html5_render_end(HtmlRenderer *const r) {
 
     --r->depth;
 
-    fprintf(r->fstream, "</");
-    html5_render_escaped(r->fstream, r->stack[r->depth]);
-    fprintf(r->fstream, ">");
+    const char *tag = r->stack[r->depth];
+
+    if (tag != NULL && *tag != '\0') {
+        fprintf(r->fstream, "</");
+        html5_render_escaped(r->fstream, tag);
+        fprintf(r->fstream, ">");
+    }
 }

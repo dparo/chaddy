@@ -97,12 +97,18 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
 void html5_render_end(HtmlRenderer *const r);
 
 #define HTML_ELEM(r, tag, ...)                                                                     \
-    for ( int _block_inner_cnt = (html5_render_begin(r, tag, ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
+    for ( int _block_inner_cnt = (html5_render_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
                                     (HtmlAttrib[]){__VA_ARGS__, {NULL, NULL}}), 0);                    \
          !_block_inner_cnt; _block_inner_cnt = 1, html5_render_end(r))
 
-#define DIV(r, ...) HTML_ELEM(r, "div", __VA_ARGS__)
-#define H1(r, ...) HTML_ELEM(r, "h1", __VA_ARGS__)
+
+#define DIV_IF(r, cond ...) HTML_ELEM(r, (cond) ? "div" : NULL, __VA_ARGS__)
+#define H1_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "h1" : NULL, __VA_ARGS__)
+
+
+#define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
+#define H1(r, ...) H1_IF(r, true, __VA_ARGS__)
+
 
 #define HTML5_RAW_STRING(r, s)                                                                     \
     do {                                                                                           \
