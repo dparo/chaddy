@@ -61,7 +61,8 @@ void html5_render_self_closing(HtmlRenderer *const r, const char *tag,
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
         html5_render_escaped(r->fstream, tag);
-        fprintf(r->fstream, " ");
+        if (num_attribs > 0)
+            fprintf(r->fstream, " ");
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, "/>");
     }
@@ -81,9 +82,10 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
         html5_render_escaped(r->fstream, tag);
-        fprintf(r->fstream, " ");
+        if (num_attribs > 0)
+            fprintf(r->fstream, " ");
         render_attrs(r, num_attribs, attribs);
-        fprintf(r->fstream, "/>");
+        fprintf(r->fstream, ">");
     }
 
     return 0;
