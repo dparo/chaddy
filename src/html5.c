@@ -52,6 +52,9 @@ int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attrib
             fprintf(r->fstream, "=\"");
             html5_render_escaped(r->fstream, value);
             fprintf(r->fstream, "\" ");
+        } else if (key) {
+            // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option value="foo" selected />
+            html5_render_escaped(r->fstream, key);
         }
     }
 
