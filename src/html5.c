@@ -63,7 +63,7 @@ void html5_render_self_closing(HtmlRenderer *const r, const char *tag,
         html5_render_escaped(r->fstream, tag);
         fprintf(r->fstream, " ");
         render_attrs(r, num_attribs, attribs);
-        fprintf(r->fstream, ">");
+        fprintf(r->fstream, "/>");
     }
     return;
 }
