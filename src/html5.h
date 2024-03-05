@@ -113,13 +113,15 @@ void html5_render_self_closing(HtmlRenderer *const r, const char *tag, size_t nu
 
 #define DIV_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "div" : NULL, __VA_ARGS__)
 #define H1_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "h1" : NULL, __VA_ARGS__)
-#define P_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "p" : NULL, __VA_ARGS__)
+#define P_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "p" : NULL, __VA_ARGS__)
+#define B_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "b" : NULL, __VA_ARGS__)
 
 #define BR_IF(r, cond, ...) HTML_SELF_CLOSING_ELEM(r, (cond) ? "br" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
 #define H1(r, ...) H1_IF(r, true, __VA_ARGS__)
 #define P(r, ...) P_IF(r, true, __VA_ARGS__)
+#define B(r, ...) B_IF(r, true, __VA_ARGS__)
 
 #define BR(r, ...) BR_IF(r, true, __VA_ARGS__)
 
