@@ -128,15 +128,20 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
 #define B(r, ...) B_IF(r, true, __VA_ARGS__)
 #define HTML(r, ...) HTML_IF(r, true, __VA_ARGS__)
 #define HEAD(r, ...) HEAD_IF(r, true, __VA_ARGS__)
-#define TITLE(r, ...) TITLE_IF(r, true, __VA_ARGS__)
 #define BODY(r, ...) BODY_IF(r, true, __VA_ARGS__)
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
 #define SCRIPT(r, content, ...)                                                                    \
-    HTML_ELEM(r, "script", __VA_ARGS__) do { html5_render_escaped(r, (content)); }                 \
+    HTML_ELEM(r, "script", __VA_ARGS__) do { html5_render_raw_text((r), (content)); }              \
     while (0)
 #define STYLE(r, content, ...)                                                                     \
-    HTML_ELEM(r, "style", __VA_ARGS__) do { html5_render_escaped(r, (content)); }                  \
+    HTML_ELEM(r, "style", __VA_ARGS__) do { html5_render_raw_text((r), (content)); }               \
+    while (0)
+#define TITLE(r, content, ...)                                                                     \
+    HTML_ELEM(r, "title", __VA_ARGS__) do { html5_render_escaped((r), (content)); }                \
+    while (0)
+#define TEXTAREA(r, content, ...)                                                                  \
+    HTML_ELEM(r, "textarea", __VA_ARGS__) do { html5_render_escaped((r), (content)); }             \
     while (0)
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Void_element

@@ -51,6 +51,7 @@ static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAt
             // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
             // value="foo" selected />
             html5_render_escaped(r, key);
+            fprintf(r->fstream, " ");
         }
     }
 }
