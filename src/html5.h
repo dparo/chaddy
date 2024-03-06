@@ -96,20 +96,20 @@ void html5_render_raw_text(HtmlRenderer *r, const char *string);
 void html5_render_escaped(HtmlRenderer *r, const char *string);
 void html5_render_elem_end(HtmlRenderer *r);
 int html5_render_elem_begin(HtmlRenderer *r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[]);
+                            const HtmlAttrib attribs[num_attribs]);
 void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[]);
+                            const HtmlAttrib attribs[num_attribs]);
 
 #define HTML_VOID_ELEM(r, tag, ...)                                                                \
     do {                                                                                           \
-        html5_render_void_elem(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),                 \
-                               (HtmlAttrib[]){__VA_ARGS__});                                       \
+        html5_render_void_elem(r, (tag), ARRAY_LEN(((const HtmlAttrib[]){__VA_ARGS__})),           \
+                               (const HtmlAttrib[]){__VA_ARGS__});                                 \
     } while (0)
 
 #define HTML_ELEM(r, tag, ...)                                                                     \
     for (int _block_inner_cnt =                                                                    \
-             (html5_render_elem_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),          \
-                                      (HtmlAttrib[]){__VA_ARGS__}),                                \
+             (html5_render_elem_begin(r, (tag), ARRAY_LEN(((const HtmlAttrib[]){__VA_ARGS__})),    \
+                                      (const HtmlAttrib[]){__VA_ARGS__}),                          \
               0);                                                                                  \
          !_block_inner_cnt; _block_inner_cnt = 1, html5_render_elem_end(r))
 
@@ -119,8 +119,6 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
 #define B_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "b" : NULL, __VA_ARGS__)
 #define HTML_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "html" : NULL, __VA_ARGS__)
 #define HEAD_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "head" : NULL, __VA_ARGS__)
-#define META_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "meta" : NULL, __VA_ARGS__)
-#define LINK_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "link" : NULL, __VA_ARGS__)
 #define BODY_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "body" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
@@ -129,8 +127,6 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
 #define B(r, ...) B_IF(r, true, __VA_ARGS__)
 #define HTML(r, ...) HTML_IF(r, true, __VA_ARGS__)
 #define HEAD(r, ...) HEAD_IF(r, true, __VA_ARGS__)
-#define META(r, ...) META_IF(r, true, __VA_ARGS__)
-#define LINK(r, ...) LINK_IF(r, true, __VA_ARGS__)
 #define BODY(r, ...) BODY_IF(r, true, __VA_ARGS__)
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions

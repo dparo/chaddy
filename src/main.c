@@ -49,13 +49,12 @@ static int main2(const char **defines, int32_t num_defines) {
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(5000);
 
-    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 
     listen(listenfd, 10);
 
-    while(1)
-    {
-        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+    while (1) {
+        connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
 
         FILE *conn = fdopen(connfd, "w");
         char buffer[64 * 1024] = {0};
@@ -64,27 +63,50 @@ static int main2(const char **defines, int32_t num_defines) {
         HtmlRenderer r = {0};
         r.fstream = f;
 
-        H1(&r, {}) {
-            html5_render_escaped(r.fstream, "Hello world");
+        html5_render_raw_text(&r, "<!DOCTYPE html>\n");
+        HTML(&r, {"lang", "en"}) {
+            HEAD(&r) {
+                const char title[] = "CHADDY <&'>";
+                META(&r, {"charset", "utf-8"});
+                META(&r, {"http-equiv", "content-language"}, {"content", "en"});
+                META(&r, {"name", "title"}, {"content", title});
+                TITLE(&r, title);
+                SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@1.9.10"});
+            }
+            BODY(&r) {
+                INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
+                      {rand() % 2 ? "disabled" : NULL, NULL});
+                BR(&r);
+                for (int i = 0; i < 100; i++) {
+                    char buf[128] = {0};
+                    snprintf(buf, ARRAY_LEN(buf), "Hello world %d", i);
+                    bool cond = rand() % 2;
+                    B_IF(&r, cond, {"class", "foo"}, {"style", "bold"}) {
+                        html5_render_escaped(&r, buf);
+                    }
+                    BR(&r);
+                }
+            }
         }
 
         fflush(f);
         fseek(f, 0L, SEEK_END);
         long int sz = ftell(f);
 
-
         fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
         fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
         fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
         fprintf(conn, "%s: %s\r\n", "Connection", "close");
+        fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
+
         fprintf(conn, "\r\n");
         fflush(conn);
 
-        write(connfd, buffer, (size_t) sz);
+        write(connfd, buffer, (size_t)sz);
 
         fclose(f);
         // close(connfd);
-     }
+    }
 
     return EXIT_SUCCESS;
 }

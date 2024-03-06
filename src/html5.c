@@ -35,7 +35,7 @@ void html5_render_escaped(HtmlRenderer *const r, const char *string) {
     fprintf(r->fstream, "%s", s);
 }
 
-static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAttrib attribs[]) {
+static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAttrib attribs[num_attribs]) {
     if (num_attribs > 0)
         fprintf(r->fstream, " ");
     for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
@@ -59,7 +59,7 @@ static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAt
 // https://developer.mozilla.org/en-US/docs/Glossary/Void_element
 // https://html.spec.whatwg.org/#void-elements
 void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[]) {
+                            const HtmlAttrib attribs[num_attribs]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return;
@@ -75,7 +75,7 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
 }
 
 int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[]) {
+                            const HtmlAttrib attribs[num_attribs]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return 0;
