@@ -91,11 +91,13 @@ typedef struct HtmlAttrib {
     char *value;
 } HtmlAttrib;
 
-void html5_render_escaped(FILE *fstream, const char *string);
-void html5_render_elem_end(HtmlRenderer *const r);
-int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+// https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
+void html5_render_raw_text(HtmlRenderer *r, const char *string);
+void html5_render_escaped(HtmlRenderer *r, const char *string);
+void html5_render_elem_end(HtmlRenderer *r);
+int html5_render_elem_begin(HtmlRenderer *r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[]);
-void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[]);
 
 #define HTML_VOID_ELEM(r, tag, ...)                                                                \
@@ -115,15 +117,43 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
 #define H1_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "h1" : NULL, __VA_ARGS__)
 #define P_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "p" : NULL, __VA_ARGS__)
 #define B_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "b" : NULL, __VA_ARGS__)
-
-#define BR_IF(r, cond, ...) HTML_VOID_ELEM(r, (cond) ? "br" : NULL, __VA_ARGS__)
+#define HTML_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "html" : NULL, __VA_ARGS__)
+#define HEAD_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "head" : NULL, __VA_ARGS__)
+#define TITLE_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "title" : NULL, __VA_ARGS__)
+#define BODY_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "body" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
 #define H1(r, ...) H1_IF(r, true, __VA_ARGS__)
 #define P(r, ...) P_IF(r, true, __VA_ARGS__)
 #define B(r, ...) B_IF(r, true, __VA_ARGS__)
+#define HTML(r, ...) HTML_IF(r, true, __VA_ARGS__)
+#define HEAD(r, ...) HEAD_IF(r, true, __VA_ARGS__)
+#define TITLE(r, ...) TITLE_IF(r, true, __VA_ARGS__)
+#define BODY(r, ...) BODY_IF(r, true, __VA_ARGS__)
 
-#define BR(r, ...) BR_IF(r, true, __VA_ARGS__)
+// https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
+#define SCRIPT(r, content, ...)                                                                    \
+    HTML_ELEM(r, "script", __VA_ARGS__) do { html5_render_escaped(r, (content)); }                 \
+    while (0)
+#define STYLE(r, content, ...)                                                                     \
+    HTML_ELEM(r, "style", __VA_ARGS__) do { html5_render_escaped(r, (content)); }                  \
+    while (0)
+
+// https://developer.mozilla.org/en-US/docs/Glossary/Void_element
+// https://html.spec.whatwg.org/#void-elements
+#define AREA(r, ...) HTML_VOID_ELEM(r, "area", __VA_ARGS__)
+#define BASE(r, ...) HTML_VOID_ELEM(r, "base", __VA_ARGS__)
+#define BR(r, ...) HTML_VOID_ELEM(r, "br", __VA_ARGS__)
+#define COL(r, ...) HTML_VOID_ELEM(r, "col", __VA_ARGS__)
+#define EMBED(r, ...) HTML_VOID_ELEM(r, "embed", __VA_ARGS__)
+#define HR(r, ...) HTML_VOID_ELEM(r, "hr", __VA_ARGS__)
+#define IMG(r, ...) HTML_VOID_ELEM(r, "img", __VA_ARGS__)
+#define INPUT(r, ...) HTML_VOID_ELEM(r, "input", __VA_ARGS__)
+#define LINK(r, ...) HTML_VOID_ELEM(r, "link", __VA_ARGS__)
+#define META(r, ...) HTML_VOID_ELEM(r, "meta", __VA_ARGS__)
+#define SOURCE(r, ...) HTML_VOID_ELEM(r, "source", __VA_ARGS__)
+#define TRACK(r, ...) HTML_VOID_ELEM(r, "track", __VA_ARGS__)
+#define WBR(r, ...) HTML_VOID_ELEM(r, "wbr", __VA_ARGS__)
 
 #define HTML5_RAW_STRING(r, s)                                                                     \
     do {                                                                                           \

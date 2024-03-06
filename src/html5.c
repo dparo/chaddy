@@ -6,7 +6,12 @@
 #include <stdint.h>
 #include <string.h>
 
-void html5_render_escaped(FILE *fstream, const char *string) {
+void html5_render_raw_text(HtmlRenderer *const r, const char *string) {
+    if (string && *string != '\0')
+        fprintf(r->fstream, "%s", string);
+}
+
+void html5_render_escaped(HtmlRenderer *const r, const char *string) {
     if (string == NULL) {
         return;
     }
@@ -21,13 +26,13 @@ void html5_render_escaped(FILE *fstream, const char *string) {
         if (p == NULL) {
             break;
         } else {
-            fprintf(fstream, "%.*s", (int)(p - s), s);
-            fprintf(fstream, "%s", escaped_chars[(int)*p]);
+            fprintf(r->fstream, "%.*s", (int)(p - s), s);
+            fprintf(r->fstream, "%s", escaped_chars[(int)*p]);
             s = p + 1;
         }
     }
 
-    fprintf(fstream, "%s", s);
+    fprintf(r->fstream, "%s", s);
 }
 
 static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAttrib attribs[]) {
@@ -38,18 +43,20 @@ static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAt
         const char *value = attribs[i].value;
 
         if (key && value) {
-            html5_render_escaped(r->fstream, key);
+            html5_render_escaped(r, key);
             fprintf(r->fstream, "=\"");
-            html5_render_escaped(r->fstream, value);
+            html5_render_escaped(r, value);
             fprintf(r->fstream, "\" ");
         } else if (key) {
             // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
             // value="foo" selected />
-            html5_render_escaped(r->fstream, key);
+            html5_render_escaped(r, key);
         }
     }
 }
 
+// https://developer.mozilla.org/en-US/docs/Glossary/Void_element
+// https://html.spec.whatwg.org/#void-elements
 void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[]) {
     tag = tag ? tag : "";
@@ -59,7 +66,7 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
-        html5_render_escaped(r->fstream, tag);
+        html5_render_escaped(r, tag);
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, "/>");
     }
@@ -67,7 +74,7 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
 }
 
 int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                       const HtmlAttrib attribs[]) {
+                            const HtmlAttrib attribs[]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return 0;
@@ -78,7 +85,7 @@ int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_a
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
-        html5_render_escaped(r->fstream, tag);
+        html5_render_escaped(r, tag);
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, ">");
     }
@@ -97,7 +104,7 @@ void html5_render_elem_end(HtmlRenderer *const r) {
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "</");
-        html5_render_escaped(r->fstream, tag);
+        html5_render_escaped(r, tag);
         fprintf(r->fstream, ">");
     }
 }
