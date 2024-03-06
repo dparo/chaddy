@@ -92,31 +92,31 @@ typedef struct HtmlAttrib {
 } HtmlAttrib;
 
 void html5_render_escaped(FILE *fstream, const char *string);
-void html5_render_end(HtmlRenderer *const r);
-int html5_render_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                       const HtmlAttrib attribs[]);
-void html5_render_self_closing(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                               const HtmlAttrib attribs[]);
+void html5_render_elem_end(HtmlRenderer *const r);
+int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+                            const HtmlAttrib attribs[]);
+void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+                            const HtmlAttrib attribs[]);
 
-#define HTML_SELF_CLOSING_ELEM(r, tag, ...)                                                        \
+#define HTML_VOID_ELEM(r, tag, ...)                                                                \
     do {                                                                                           \
-        html5_render_self_closing(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),              \
-                                  (HtmlAttrib[]){__VA_ARGS__});                                    \
+        html5_render_void_elem(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),                 \
+                               (HtmlAttrib[]){__VA_ARGS__});                                       \
     } while (0)
 
-#define HTML_BLOCK(r, tag, ...)                                                                    \
+#define HTML_ELEM(r, tag, ...)                                                                     \
     for (int _block_inner_cnt =                                                                    \
-             (html5_render_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),               \
-                                 (HtmlAttrib[]){__VA_ARGS__}),                                     \
+             (html5_render_elem_begin(r, (tag), ARRAY_LEN(((HtmlAttrib[]){__VA_ARGS__})),          \
+                                      (HtmlAttrib[]){__VA_ARGS__}),                                \
               0);                                                                                  \
-         !_block_inner_cnt; _block_inner_cnt = 1, html5_render_end(r))
+         !_block_inner_cnt; _block_inner_cnt = 1, html5_render_elem_end(r))
 
-#define DIV_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "div" : NULL, __VA_ARGS__)
-#define H1_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "h1" : NULL, __VA_ARGS__)
-#define P_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "p" : NULL, __VA_ARGS__)
-#define B_IF(r, cond, ...) HTML_BLOCK(r, (cond) ? "b" : NULL, __VA_ARGS__)
+#define DIV_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "div" : NULL, __VA_ARGS__)
+#define H1_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "h1" : NULL, __VA_ARGS__)
+#define P_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "p" : NULL, __VA_ARGS__)
+#define B_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "b" : NULL, __VA_ARGS__)
 
-#define BR_IF(r, cond, ...) HTML_SELF_CLOSING_ELEM(r, (cond) ? "br" : NULL, __VA_ARGS__)
+#define BR_IF(r, cond, ...) HTML_VOID_ELEM(r, (cond) ? "br" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
 #define H1(r, ...) H1_IF(r, true, __VA_ARGS__)
