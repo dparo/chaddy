@@ -87,8 +87,8 @@ typedef struct HtmlRenderer {
 } HtmlRenderer;
 
 typedef struct HtmlAttrib {
-    char *key;
-    char *value;
+    const char *key;
+    const char *value;
 } HtmlAttrib;
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
@@ -119,7 +119,8 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
 #define B_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "b" : NULL, __VA_ARGS__)
 #define HTML_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "html" : NULL, __VA_ARGS__)
 #define HEAD_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "head" : NULL, __VA_ARGS__)
-#define TITLE_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "title" : NULL, __VA_ARGS__)
+#define META_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "meta" : NULL, __VA_ARGS__)
+#define LINK_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "link" : NULL, __VA_ARGS__)
 #define BODY_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "body" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
@@ -128,6 +129,8 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
 #define B(r, ...) B_IF(r, true, __VA_ARGS__)
 #define HTML(r, ...) HTML_IF(r, true, __VA_ARGS__)
 #define HEAD(r, ...) HEAD_IF(r, true, __VA_ARGS__)
+#define META(r, ...) META_IF(r, true, __VA_ARGS__)
+#define LINK(r, ...) LINK_IF(r, true, __VA_ARGS__)
 #define BODY(r, ...) BODY_IF(r, true, __VA_ARGS__)
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
