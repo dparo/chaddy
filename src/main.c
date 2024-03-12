@@ -42,70 +42,144 @@ static int main2(const char **defines, int32_t num_defines) {
     time_t ticks;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (listenfd <= 0) {
+        perror("Failed to create listen socket");
+        exit(EXIT_FAILURE);
+    }
+
+    // Reuse address for quick development
+    if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
+        perror("setsockopt(SO_REUSEADDR) failed");
+        exit(EXIT_FAILURE);
+    }
+
     memset(&serv_addr, '0', sizeof(serv_addr));
     memset(sendBuff, '0', sizeof(sendBuff));
 
+    uint16_t port = 5000;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000);
+    serv_addr.sin_port = htons(port);
 
-    bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    int rc = 0;
+    rc = bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    if (rc == -1) {
+        perror("Failed to bind");
+        exit(EXIT_FAILURE);
+    }
 
-    listen(listenfd, 10);
+    rc = listen(listenfd, 10);
+    if (rc == -1) {
+        perror("Failed to listen");
+        exit(EXIT_FAILURE);
+    }
 
+    printf("Listening on port %d ...\n", port);
     while (1) {
         connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
+        if (connfd <= 0) {
+            perror("Failed to accept");
+            exit(EXIT_FAILURE);
+        }
 
-        FILE *conn = fdopen(connfd, "w");
-        char buffer[64 * 1024] = {0};
-        FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
+        char http_req[64 * 1024];
+        ssize_t nread = 0;
 
-        HtmlRenderer r = {0};
-        r.fstream = f;
+        // NOTE(d.paro): Dumb GET HTTP body extractor. Completely unsafe !!!!
+        while ((nread = read(connfd, http_req, sizeof(http_req))) > 0) {
+            printf("%.*s", (int) nread, http_req);
+            fflush(stdout);
 
-        html5_render_raw_text(&r, "<!DOCTYPE html>\n");
-        HTML(&r, {"lang", "en"}) {
-            HEAD(&r) {
-                const char title[] = "CHADDY <&'>";
-                META(&r, {"charset", "utf-8"});
-                META(&r, {"http-equiv", "content-language"}, {"content", "en"});
-                META(&r, {"name", "title"}, {"content", title});
-                TITLE(&r, title);
-                SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@1.9.10"});
-            }
-            BODY(&r) {
-                INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
-                      {rand() % 2 ? "disabled" : NULL, NULL});
-                BR(&r);
-                for (int i = 0; i < 100; i++) {
-                    char buf[128] = {0};
-                    snprintf(buf, ARRAY_LEN(buf), "Hello world %d", i);
-                    bool cond = rand() % 2;
-                    B_IF(&r, cond, {"class", "foo"}, {"style", "bold"}) {
-                        html5_render_escaped(&r, buf);
-                    }
-                    BR(&r);
-                }
+            if (http_req[nread - 2] == '\r' && http_req[nread - 1] == '\n') {
+                break;
             }
         }
 
-        fflush(f);
-        fseek(f, 0L, SEEK_END);
-        long int sz = ftell(f);
+        char *first_space = strchr(http_req, ' ');
+        char *second_space = strchr(first_space + 1, ' ');
 
-        fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
-        fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
-        fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
-        fprintf(conn, "%s: %s\r\n", "Connection", "close");
-        fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
 
-        fprintf(conn, "\r\n");
-        fflush(conn);
+        printf("first_space offset: %zu\n", first_space - http_req);
+        printf("second_space offset: %zu\n", second_space - http_req);
 
-        write(connfd, buffer, (size_t)sz);
+        char http_path[1024] = {0};
+        strncpy(http_path, first_space + 1, MIN((uintptr_t) ARRAY_LEN(http_path), (uintptr_t) second_space - (uintptr_t) first_space - 1));
 
-        fclose(f);
-        // close(connfd);
+
+        printf("\n\n");
+        printf("Parsed requested path: %s\n", http_path);
+        printf("\n");
+
+
+
+
+        if (0 == strcmp("/", http_path)
+            || 0 == strcmp("/index.html", http_path)) {
+
+            FILE *conn = fdopen(connfd, "w");
+            char buffer[64 * 1024] = {0};
+            FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
+
+
+            HtmlRenderer r = {0};
+            r.fstream = f;
+
+            html5_render_raw_text(&r, "<!DOCTYPE html>\n");
+            HTML(&r, {"lang", "en"}) {
+                HEAD(&r) {
+                    const char title[] = "CHADDY <&'>";
+                    META(&r, {"charset", "utf-8"});
+                    META(&r, {"http-equiv", "content-language"}, {"content", "en"});
+                    META(&r, {"name", "title"}, {"content", title});
+                    TITLE(&r, title);
+                    SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@1.9.10"});
+                }
+                BODY(&r) {
+                    INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
+                          {rand() % 2 ? "disabled" : NULL, NULL});
+                    BR(&r);
+                    for (int i = 0; i < 100; i++) {
+                        char buf[128] = {0};
+                        snprintf(buf, ARRAY_LEN(buf), "Hello world %d", i);
+                        bool cond = rand() % 2;
+                        B_IF(&r, cond, {"class", "foo"}, {"style", "bold"}) {
+                            html5_render_escaped(&r, buf);
+                        }
+                        BR(&r);
+                    }
+                }
+            }
+
+            fflush(f);
+            fseek(f, 0L, SEEK_END);
+            long int sz = ftell(f);
+
+            fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
+            fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
+            fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
+            fprintf(conn, "%s: %s\r\n", "Connection", "close");
+            fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
+            fprintf(conn, "\r\n");
+            fflush(conn);
+
+            write(connfd, buffer, (size_t)sz);
+
+            fclose(f);
+            // close(connfd);
+        } else if (0 == strcmp("/favicon.ico", http_path)) {
+            // TODO(d.paro): Serve a favicon
+            close(connfd);
+        } else {
+            FILE *conn = fdopen(connfd, "w");
+
+            fprintf(conn, "%s\r\n", "HTTP/1.1 404 Not Found");
+            fprintf(conn, "%s: %zu\r\n", "Content-Length", 0L);
+            fprintf(conn, "%s: %s\r\n", "Connection", "close");
+            fprintf(conn, "\r\n");
+
+            fflush(conn);
+            fclose(conn);
+        }
     }
 
     return EXIT_SUCCESS;
