@@ -71,7 +71,6 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, "/>");
     }
-    return;
 }
 
 int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
