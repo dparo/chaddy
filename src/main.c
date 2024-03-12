@@ -23,6 +23,10 @@
 #include <argtable3.h>
 #include <hedley.h>
 
+#include <uv.h>
+
+uv_loop_t *loop;
+
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
 };
@@ -31,10 +35,44 @@ static void print_brief_description(const char *progname);
 static void print_version(void);
 static void print_use_help_for_more_information(const char *progname);
 
-static int main2(const char **defines, int32_t num_defines) {
-    (void)defines;
-    (void)num_defines;
+static void on_new_connection(uv_stream_t *server, int status) {
+    if (status < 0) {
+        fprintf(stderr, "New connection error %s\n", uv_strerror(status));
+        // error!
+        return;
+    }
+    uv_tcp_t *client = (uv_tcp_t*) malloc(sizeof(uv_tcp_t));
+    uv_tcp_init(loop, client);
 
+    if (uv_accept(server, (uv_stream_t*) client) == 0) {
+        // uv_read_start((uv_stream_t*) client, alloc_buffer, echo_read);
+    }
+}
+
+int main_uv() {
+    loop = malloc(sizeof(*loop));
+    memset(loop, 0, sizeof(*loop));
+
+    uv_loop_init(loop);
+
+    uv_tcp_t server;
+    uv_tcp_init(loop, &server);
+    struct sockaddr_in bind_addr = {0};
+    uv_ip4_addr("0.0.0.0", 3000, &bind_addr);
+    uv_tcp_bind(&server, (struct sockaddr *)&bind_addr, 0x0);
+    int r = uv_listen((uv_stream_t *)&server, 128, on_new_connection);
+    if (r) {
+        fprintf(stderr, "Listen error %s\n", uv_strerror(r));
+        return 1;
+    }
+    int rc = uv_run(loop, UV_RUN_DEFAULT);
+    uv_loop_close(loop);
+
+    free(loop);
+    return rc;
+}
+
+int main_tcp() {
     int listenfd = 0, connfd = 0;
     struct sockaddr_in serv_addr;
 
@@ -49,13 +87,12 @@ static int main2(const char **defines, int32_t num_defines) {
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(5000);
 
-    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 
     listen(listenfd, 10);
 
-    while(1)
-    {
-        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+    while (1) {
+        connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
 
         FILE *conn = fdopen(connfd, "w");
         char buffer[64 * 1024] = {0};
@@ -64,14 +101,11 @@ static int main2(const char **defines, int32_t num_defines) {
         HtmlRenderer r = {0};
         r.fstream = f;
 
-        H1(&r, {}) {
-            html5_render_escaped(r.fstream, "Hello world");
-        }
+        H1(&r, {}) { html5_render_escaped(r.fstream, "Hello world"); }
 
         fflush(f);
         fseek(f, 0L, SEEK_END);
         long int sz = ftell(f);
-
 
         fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
         fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
@@ -80,11 +114,19 @@ static int main2(const char **defines, int32_t num_defines) {
         fprintf(conn, "\r\n");
         fflush(conn);
 
-        write(connfd, buffer, (size_t) sz);
+        write(connfd, buffer, (size_t)sz);
 
         fclose(f);
         // close(connfd);
-     }
+    }
+}
+
+static int main2(const char **defines, int32_t num_defines) {
+    (void)defines;
+    (void)num_defines;
+
+
+    main_uv();
 
     return EXIT_SUCCESS;
 }

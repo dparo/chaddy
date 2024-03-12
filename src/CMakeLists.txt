@@ -61,7 +61,7 @@ target_link_libraries(libmain PUBLIC debugbreak logc "${CURL_LIBRARIES}")
 target_include_directories(libmain PUBLIC "${DEPS_DIR}/hedley" "${CURL_INCLUDE_DIRS}")
 
 add_executable("${PROJECT_NAME}" main.c "${CMAKE_CURRENT_BINARY_DIR}/version.c")
-target_link_libraries("${PROJECT_NAME}" PRIVATE libmain)
+target_link_libraries("${PROJECT_NAME}" PRIVATE libmain uv)
 target_link_libraries("${PROJECT_NAME}" PRIVATE argtable3)
 target_include_directories("${PROJECT_NAME}"
                            PRIVATE "${DEPS_DIR}/argtable3/src")
