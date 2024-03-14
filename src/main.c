@@ -116,10 +116,11 @@ static int main2(const char **defines, int32_t num_defines) {
         printf("\n");
 
 
+        FILE *conn = fdopen(dup(connfd), "w");
+
         if (0 == strcasecmp("get", http_verb)) {
             if (0 == strcmp("/", http_path) || 0 == strcmp("/index.html", http_path)) {
 
-                FILE *conn = fdopen(connfd, "w");
                 char buffer[64 * 1024] = {0};
                 FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
 
@@ -165,31 +166,21 @@ static int main2(const char **defines, int32_t num_defines) {
                 fprintf(conn, "\r\n");
                 fflush(conn);
 
-
-                // MSG_NOSIGNAL Prevents SIGPIPE sginal when writing
+                // MSG_NOSIGNAL Prevents SIGPIPE signal when writing
                 // to sockets that were prematurely closed on the cliends end
                 send(connfd, buffer, (size_t)sz, MSG_NOSIGNAL);
-
-                fclose(f);
-                // close(connfd);
             } else if (0 == strcmp("/favicon.ico", http_path)) {
                 // TODO(d.paro): Serve the favicon
-                close(connfd);
             } else {
-                FILE *conn = fdopen(connfd, "w");
-
                 fprintf(conn, "%s\r\n", "HTTP/1.1 404 Not Found");
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", 0L);
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
                 fprintf(conn, "\r\n");
-
-                fflush(conn);
-                fclose(conn);
             }
         } else {
         }
 
-        close(connfd);
+        fclose(conn);
         close(connfd);
     }
 
