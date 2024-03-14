@@ -165,7 +165,10 @@ static int main2(const char **defines, int32_t num_defines) {
                 fprintf(conn, "\r\n");
                 fflush(conn);
 
-                write(connfd, buffer, (size_t)sz);
+
+                // MSG_NOSIGNAL Prevents SIGPIPE sginal when writing
+                // to sockets that were prematurely closed on the cliends end
+                send(connfd, buffer, (size_t)sz, MSG_NOSIGNAL);
 
                 fclose(f);
                 // close(connfd);
