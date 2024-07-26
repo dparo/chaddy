@@ -26,13 +26,15 @@
 
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
+    DEFAULT_PORT = 5000,
 };
 
 static void print_brief_description(const char *progname);
 static void print_version(void);
 static void print_use_help_for_more_information(const char *progname);
 
-static int main2(const char **defines, int32_t num_defines) {
+static int main2(const int port,
+                 const char **defines, int32_t num_defines) {
     (void)defines;
     (void)num_defines;
 
@@ -57,22 +59,23 @@ static int main2(const char **defines, int32_t num_defines) {
     memset(&serv_addr, '0', sizeof(serv_addr));
     memset(sendBuff, '0', sizeof(sendBuff));
 
-    uint16_t port = 5000;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(port);
+    serv_addr.sin_port = htons((uint16_t) port);
 
+    char err_msg_buf[4096] = {0};
     int rc = 0;
     rc = bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     if (rc == -1) {
-        perror("Failed to bind");
-        exit(EXIT_FAILURE);
+        snprintf(err_msg_buf, ARRAY_LEN(err_msg_buf), "Failed to bind on port %d", port);
+        perror(err_msg_buf);
+        return EXIT_FAILURE;
     }
 
     rc = listen(listenfd, 10);
     if (rc == -1) {
         perror("Failed to listen");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     printf("Listening on port %d ...\n", port);
@@ -80,7 +83,7 @@ static int main2(const char **defines, int32_t num_defines) {
         connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
         if (connfd <= 0) {
             perror("Failed to accept");
-            exit(EXIT_FAILURE);
+            return EXIT_FAILURE;
         }
 
         char http_req[64 * 1024];
@@ -209,9 +212,10 @@ int main(int argc, char **argv) {
                   "stored (default none)");
     struct arg_lit *help = arg_lit0(NULL, "help", "print this help and exit");
     struct arg_lit *version = arg_lit0(NULL, "version", "print version information and exit");
+    struct arg_int *port_opt = arg_int0("p", "port", "<int>", "Specify the server port");
     struct arg_end *end = arg_end(MAX_NUMBER_OF_ERRORS_TO_DISPLAY);
 
-    void *argtable[] = {help, version, verbose, logfile, defines, end};
+    void *argtable[] = {help, version, verbose, logfile, defines, port_opt, end};
 
     int nerrors = 0;
     int exitcode = 0;
@@ -268,7 +272,16 @@ int main(int argc, char **argv) {
         }
     }
 
-    exitcode = main2(defines->sval, defines->count);
+    int port = DEFAULT_PORT;
+    if (port_opt->count > 0 && port_opt->ival) {
+        if (port_opt->ival && (*port_opt->ival <= 0 || *port_opt->ival > UINT16_MAX)) {
+        log_warn("Invalid port specified %d, defaulting to %d", *port_opt->ival, port);
+        } else {
+            port = *port_opt->ival;
+        }
+    }
+
+    exitcode = main2(port, defines->sval, defines->count);
 
 exit:
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
