@@ -50,10 +50,6 @@ set_target_properties("mypy-src" PROPERTIES ENVIRONMENT "${PYTHON_ENV_PROP}")
 
 # generate version.c
 configure_file("version.c.in" "${CMAKE_CURRENT_BINARY_DIR}/version.c" @ONLY)
-if(BUILD_DOC)
-    doxygen_add_docs(docs "${CMAKE_SOURCE_DIR}/src/"
-                     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-endif()
 
 add_library(libmain sum.c html5.c)
 target_include_directories(libmain PUBLIC ./)
@@ -62,6 +58,6 @@ target_include_directories(libmain PUBLIC "${DEPS_DIR}/hedley" "${CURL_INCLUDE_D
 
 add_executable("${PROJECT_NAME}" main.c "${CMAKE_CURRENT_BINARY_DIR}/version.c")
 target_link_libraries("${PROJECT_NAME}" PRIVATE libmain)
-target_link_libraries("${PROJECT_NAME}" PRIVATE argtable3)
+target_link_libraries("${PROJECT_NAME}" PRIVATE argtable3 m)
 target_include_directories("${PROJECT_NAME}"
                            PRIVATE "${DEPS_DIR}/argtable3/src")

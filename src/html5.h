@@ -95,7 +95,7 @@ typedef struct HtmlAttrib {
 void html5_render_raw_text(HtmlRenderer *r, const char *string);
 void html5_render_escaped(HtmlRenderer *r, const char *string);
 void html5_render_elem_end(HtmlRenderer *r);
-int html5_render_elem_begin(HtmlRenderer *r, const char *tag, size_t num_attribs,
+void html5_render_elem_begin(HtmlRenderer *r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[num_attribs]);
 void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[num_attribs]);
@@ -107,11 +107,11 @@ void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs
     } while (0)
 
 #define HTML_ELEM(r, tag, ...)                                                                     \
-    for (int _block_inner_cnt =                                                                    \
+    for (int _html_elem_inner_loop_it_##__LINE__ =                                                            \
              (html5_render_elem_begin(r, (tag), ARRAY_LEN(((const HtmlAttrib[]){__VA_ARGS__})),    \
                                       (const HtmlAttrib[]){__VA_ARGS__}),                          \
               0);                                                                                  \
-         !_block_inner_cnt; _block_inner_cnt = 1, html5_render_elem_end(r))
+         !_html_elem_inner_loop_it_##__LINE__; _html_elem_inner_loop_it_##__LINE__ = 1, html5_render_elem_end(r))
 
 #define DIV_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "div" : NULL, __VA_ARGS__)
 #define H1_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "h1" : NULL, __VA_ARGS__)

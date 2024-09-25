@@ -73,11 +73,11 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
     }
 }
 
-int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+void html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[num_attribs]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
-        return 0;
+        return;
     }
 
     strncpy(r->stack[r->depth], tag, HTML_RENDERER_MAX_TAG_LEN + 1);
@@ -89,8 +89,6 @@ int html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_a
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, ">");
     }
-
-    return 0;
 }
 
 void html5_render_elem_end(HtmlRenderer *const r) {

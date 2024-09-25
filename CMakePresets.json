@@ -79,7 +79,7 @@
     {
       "name": "debug-asan",
       "configurePreset": "debug-asan",
-      "inherits": ["default"]
+      "inherits": ["debug"]
     },
     {
       "name": "release",
@@ -110,7 +110,7 @@
       "name": "debug-asan",
       "configuration": "Debug",
       "configurePreset": "debug-asan",
-      "inherits": ["default"]
+      "inherits": ["debug"]
     },
     {
       "name": "release",

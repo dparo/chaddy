@@ -11,6 +11,8 @@ project(
     DESCRIPTION "Chaddy: A uFE/BE stack in C11"
 )
 
+include(cmake/CPM.cmake)
+
 option(CODE_COVERAGE "Enable coverage reporting" OFF)
 option(BUILD_DOC "Build documentation" OFF)
 
