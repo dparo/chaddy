@@ -1,7 +1,8 @@
 <!--
-SPDX-FileCopyrightText: 2023 Davide Paro
+SPDX-FileCopyrightText: 2024 Davide Paro <dparo@outlook.it>, et al.
+SPDX-FileContributor: Davide Paro <dparo@outlook.it>
 
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: Apache-2.0
 -->
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/dparo/chaddy?style=for-the-badge)

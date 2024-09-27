@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: 2023 Davide Paro
-# SPDX-FileCopyrightText: 2024 Davide Paro
+# SPDX-FileCopyrightText: 2024 Davide Paro <dparo@outlook.it>, et al.
+# SPDX-FileContributor: Davide Paro <dparo@outlook.it>
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 
 set(TEST_SOURCES_LIST "simple.c" "std.c" "html5_render.c")
 set(TEST_PYTHON_LIST "test_py.py")

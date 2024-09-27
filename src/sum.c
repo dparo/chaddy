@@ -1,6 +1,9 @@
-// SPDX-FileCopyrightText: 2023 Davide Paro
-//
-// SPDX-License-Identifier: MIT
+/*
+ * SPDX-FileCopyrightText: 2024 Davide Paro <dparo@outlook.it>, et al.
+ * SPDX-FileContributor: Davide Paro <dparo@outlook.it>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #include "sum.h"
 

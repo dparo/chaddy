@@ -1,6 +1,7 @@
-# SPDX-FileCopyrightText: 2023 Davide Paro
+# SPDX-FileCopyrightText: 2024 Davide Paro <dparo@outlook.it>, et al.
+# SPDX-FileContributor: Davide Paro <dparo@outlook.it>
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 
 [submodule "deps/log.c"]
 	path = deps/log.c
