@@ -15,10 +15,14 @@ version = 1
 path = [
     "vcpkg.json",
     "vcpkg-configuration.json",
+    ".envrc",
     "CMakePresets.json",
     ".cmakelintrc",
+
+    "src/version.c.in",
 ]
 SPDX-FileCopyrightText = "Davide Paro <dparo@outlook.it>, et al."
+SPDX-FileContributor = "Davide Paro <dparo@outlook.it>"
 SPDX-License-Identifier = "Apache-2.0"
 # If there is licensing/copyright information in or next to these files, prefer that
 precedence = "closest"
