@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <unity.h>
 
-#include "sum.h"
 #include <string.h>
 #include "std.h"
 

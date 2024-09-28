@@ -5,12 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <setjmp.h>
-#include <cmocka.h>
+#include "test.h"
+#include "stdlib.h"
 #include <stdio.h>
 #include <memory.h>
 

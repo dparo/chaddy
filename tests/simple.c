@@ -13,7 +13,6 @@
 #include <unity.h>
 
 #include "sum.h"
-#include <string.h>
 
 void setUp(void)
 {
