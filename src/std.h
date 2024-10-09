@@ -150,64 +150,64 @@ extern "C" {
 
 #define PTR_IS_ALIGNED(ptr, alignment) _ptr_is_aligned(PTRCAST_UINTPTR_EXPR(ptr), alignment)
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static bool _ptr_is_aligned(uintptr_t ptr, size_t alignment) {
     return (uintptr_t)PTR_ALIGN_UP(ptr, alignment) == ptr;
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static uintptr_t ptr_roundup(uintptr_t ptr, size_t alignment) {
     alignment = MAX(1U, alignment);
     return (ptr + alignment - 1) / alignment * alignment;
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static uintptr_t ptr_roundup_pow2(uintptr_t ptr, size_t alignment) {
     alignment = MAX(1U, alignment);
     ASSERT_POW2(alignment);
     return (ptr + alignment - 1) & ~(alignment - 1);
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static uintptr_t ptr_rounddown(uintptr_t ptr, size_t alignment) {
     alignment = MAX(1U, alignment);
     return ptr / alignment * alignment;
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static uintptr_t ptr_rounddown_pow2(uintptr_t ptr, size_t alignment) {
     alignment = MAX(1U, alignment);
     ASSERT_POW2(alignment);
     return ptr & ~(alignment - 1);
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static size_t roundup(size_t val, size_t alignment) {
     alignment = MAX(1U, alignment);
     return (val + alignment - 1) / alignment * alignment;
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static size_t roundup_pow2(size_t val, size_t alignment) {
     alignment = MAX(1U, alignment);
     ASSERT_POW2(alignment);
     return (val + alignment - 1) & ~(alignment - 1);
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static size_t rounddown(size_t val, size_t alignment) {
     alignment = MAX(1U, alignment);
     return val / alignment * alignment;
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static size_t rounddown_pow2(size_t val, size_t alignment) {
     alignment = MAX(1U, alignment);
     ASSERT_POW2(alignment);
     return val & ~(alignment - 1);
 }
 
-ATTRIB_ALWAYS_INLINE
+CC_ATTRIB_ALWAYS_INLINE
 static bool is_pow2(size_t x) { return ((x - 1) & x) == 0; }
 
 #if defined __GNUC__ || defined __GNUG__ || defined __clang__

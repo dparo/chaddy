@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "curl",
+    "libuv",
+    "argtable3",
+    "scottt-debugbreak",
+    "hedley",
+    "cmocka"
+  ]
+}

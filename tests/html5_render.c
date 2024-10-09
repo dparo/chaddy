@@ -47,7 +47,7 @@ static int test_teardown(void **_state) {
 
 static void test_html5_render_escaped(void **_state) {
     TestState *state = *_state;
-    HtmlRenderer r = {0};
+    HtmlRendererCtx r = {0};
     r.fstream = state->f;
     html5_render_escaped(&r, state->input);
     fflush(state->f);

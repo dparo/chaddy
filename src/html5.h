@@ -53,7 +53,6 @@ typedef struct HtmlDoc {
 static void html_push_attr(HtmlElem *elem, const char *key, const char *value) {
     // Check boundaries for key
     if (elem->attrs.num_keys >= HTML_MAX_NUM_ATTRS || strlen(key) >= HTML_ATTRIB_KEY_MAX_SIZE) {
-        // TODO
         return;
     }
 
@@ -63,8 +62,8 @@ static void html_push_attr(HtmlElem *elem, const char *key, const char *value) {
 
     // Check boundaries for values buffer
 
+    // XXX(d.paro): What is this check about. It makes no sense
     if (new_offset < HTML_ATTRIB_KEY_MAX_SIZE) {
-        // TODO
         return;
     }
 
@@ -82,11 +81,11 @@ static void html_push_attr(HtmlElem *elem, const char *key, const char *value) {
 
 #define HTML_RENDERER_MAX_DEPTH 128
 #define HTML_RENDERER_MAX_TAG_LEN 63
-typedef struct HtmlRenderer {
+typedef struct HtmlRendererCtx {
     FILE *fstream;
     int32_t depth;
     char stack[HTML_RENDERER_MAX_DEPTH][HTML_RENDERER_MAX_TAG_LEN + 1];
-} HtmlRenderer;
+} HtmlRendererCtx;
 
 typedef struct HtmlAttrib {
     const char *key;
@@ -94,12 +93,12 @@ typedef struct HtmlAttrib {
 } HtmlAttrib;
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
-void html5_render_raw_text(HtmlRenderer *r, const char *string);
-void html5_render_escaped(HtmlRenderer *r, const char *string);
-void html5_render_elem_end(HtmlRenderer *r);
-void html5_render_elem_begin(HtmlRenderer *r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[num_attribs]);
-void html5_render_void_elem(HtmlRenderer *r, const char *tag, size_t num_attribs,
+void html5_render_raw_text(HtmlRendererCtx *r, const char *string);
+void html5_render_escaped(HtmlRendererCtx *r, const char *string);
+void html5_render_elem_end(HtmlRendererCtx *r);
+void html5_render_elem_begin(HtmlRendererCtx *r, const char *tag, size_t num_attribs,
+                             const HtmlAttrib attribs[num_attribs]);
+void html5_render_void_elem(HtmlRendererCtx *r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[num_attribs]);
 
 #define HTML_VOID_ELEM(r, tag, ...)                                                                \

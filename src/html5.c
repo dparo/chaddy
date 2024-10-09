@@ -9,12 +9,12 @@
 #include <stdint.h>
 #include <string.h>
 
-void html5_render_raw_text(HtmlRenderer *const r, const char *string) {
+void html5_render_raw_text(HtmlRendererCtx *const r, const char *string) {
     if (string && *string != '\0')
         fprintf(r->fstream, "%s", string);
 }
 
-void html5_render_escaped(HtmlRenderer *const r, const char *string) {
+void html5_render_escaped(HtmlRendererCtx *const r, const char *string) {
     if (string == NULL) {
         return;
     }
@@ -25,7 +25,7 @@ void html5_render_escaped(HtmlRenderer *const r, const char *string) {
 
     const char *s = string;
     while (*s) {
-        char *p = strpbrk(s, "&\"'<>");
+        char const *p = strpbrk(s, "&\"'<>");
         if (p == NULL) {
             break;
         } else {
@@ -38,7 +38,8 @@ void html5_render_escaped(HtmlRenderer *const r, const char *string) {
     fprintf(r->fstream, "%s", s);
 }
 
-static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAttrib attribs[num_attribs]) {
+static void render_attrs(HtmlRendererCtx *const r, size_t num_attribs,
+                         const HtmlAttrib attribs[num_attribs]) {
     if (num_attribs > 0)
         fprintf(r->fstream, " ");
     for (size_t i = 0; i < num_attribs /* attribs[i].key */; i++) {
@@ -61,7 +62,7 @@ static void render_attrs(HtmlRenderer *const r, size_t num_attribs, const HtmlAt
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Void_element
 // https://html.spec.whatwg.org/#void-elements
-void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_attribs,
+void html5_render_void_elem(HtmlRendererCtx *const r, const char *tag, size_t num_attribs,
                             const HtmlAttrib attribs[num_attribs]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
@@ -76,8 +77,8 @@ void html5_render_void_elem(HtmlRenderer *const r, const char *tag, size_t num_a
     }
 }
 
-void html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_attribs,
-                            const HtmlAttrib attribs[num_attribs]) {
+void html5_render_elem_begin(HtmlRendererCtx *const r, const char *tag, size_t num_attribs,
+                             const HtmlAttrib attribs[num_attribs]) {
     tag = tag ? tag : "";
     if (r->depth >= HTML_RENDERER_MAX_DEPTH || strlen(tag) >= HTML_RENDERER_MAX_TAG_LEN) {
         return;
@@ -94,7 +95,7 @@ void html5_render_elem_begin(HtmlRenderer *const r, const char *tag, size_t num_
     }
 }
 
-void html5_render_elem_end(HtmlRenderer *const r) {
+void html5_render_elem_end(HtmlRendererCtx *const r) {
     if (r->depth <= 0) {
         return;
     }

@@ -14,47 +14,47 @@
 
 #define BUILTIN_IS_CONSTANT(x) HEDLEY_IS_CONSTANT(x)
 
-#define ATTRIB_ALWAYS_INLINE HEDLEY_ALWAYS_INLINE
-#define ATTRIB_NO_RETURN HEDLEY_NO_RETURN
-#define ATTRIB_NO_RETURN HEDLEY_NO_RETURN
-#define ATTRIB_NO_DISCARD HEDLEY_WARN_UNUSED_RESULT
-#define ATTRIB_NON_NULL HEDLEY_NON_NULL
-#define ATTRIB_PRINTF_FORMAT(string_idx, first_to_check)                                           \
+#define CC_ATTRIB_ALWAYS_INLINE HEDLEY_ALWAYS_INLINE
+#define CC_ATTRIB_NO_RETURN HEDLEY_NO_RETURN
+#define CC_ATTRIB_NO_RETURN HEDLEY_NO_RETURN
+#define CC_ATTRIB_NO_DISCARD HEDLEY_WARN_UNUSED_RESULT
+#define CC_ATTRIB_NON_NULL HEDLEY_NON_NULL
+#define CC_ATTRIB_PRINTF_FORMAT(string_idx, first_to_check)                                        \
     HEDLEY_PRINTF_FORMAT(string_idx, first_to_check)
-#define ATTRIB_PURE HEDLEY_PURE
-#define ATTRIB_CONST HEDLEY_CONST
+#define CC_ATTRIB_PURE HEDLEY_PURE
+#define CC_ATTRIB_CONST HEDLEY_CONST
 
 #ifdef __GNUC__
-#define ATTRIB_UNUSED __attribute__((unused))
+#define CC_ATTRIB_UNUSED __attribute__((unused))
 #else
-#define ATTRIB_UNUSED
+#define CC_ATTRIB_UNUSED
 #endif
 
 #ifdef __GNUC__
-#define ATTRIB_ASSUME_ALIGNED(...) __attribute__((__assume_aligned__(__VA_ARGS__)))
+#define CC_ATTRIB_ASSUME_ALIGNED(...) __attribute__((__assume_aligned__(__VA_ARGS__)))
 #else
 #endif
 
 #ifdef __GNUC__
-#define ATTRIB_WEAK __attribute__((__weak__))
-#define ATTRIB_WEAK_ALIAS(alias) __attribute__((__weak__, __alias__(alias)))
+#define CC_ATTRIB_WEAK __attribute__((__weak__))
+#define CC_ATTRIB_WEAK_ALIAS(alias) __attribute__((__weak__, __alias__(alias)))
 #else
-#define ATTRIB_WEAK
-#define ATTRIB_WEAK_ALIAS(alias)
+#define CC_ATTRIB_WEAK
+#define CC_ATTRIB_WEAK_ALIAS(alias)
 #endif
 
 #ifdef __GNUC__
-#define ATTRIB_CONSTRUCTOR(...) __attribute__((__constructor__(__VA_ARGS__)))
-#define ATTRIB_DESTRUCTOR(...) __attribute__((__destructor__(__VA_ARGS__)))
+#define CC_ATTRIB_CONSTRUCTOR(...) __attribute__((__constructor__(__VA_ARGS__)))
+#define CC_ATTRIB_DESTRUCTOR(...) __attribute__((__destructor__(__VA_ARGS__)))
 #else
-#define ATTRIB_CONSTRUCTOR(...)
-#define ATTRIB_DESTRUCTOR(...)
+#define CC_ATTRIB_CONSTRUCTOR(...)
+#define CC_ATTRIB_DESTRUCTOR(...)
 #endif
 
 #ifndef __cplusplus
-#define ATTRIB_NO_THROW(...) HEDLEY_NO_THROW
+#define CC_ATTRIB_NO_THROW(...) HEDLEY_NO_THROW
 #else
-#define ATTRIB_NO_THROW(...) noexcept(__VA_ARGS__)
+#define CC_ATTRIB_NO_THROW(...) noexcept(__VA_ARGS__)
 #endif
 
 #if __cplusplus

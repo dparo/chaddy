@@ -13,7 +13,11 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/target/${presetName}",
       "environment": {},
-      "cacheVariables": {},
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_BUILD_TYPE": "release",
+        "CMAKE_MAKE_PROGRAM": "ninja"
+      },
       "hidden": true
     },
     {
@@ -27,7 +31,8 @@
         "ASAN_ENABLED": "OFF",
         "TSAN": false,
         "TSAN_ENABLED": "OFF",
-        "CODE_COVERAGE": true
+        "CODE_COVERAGE": true,
+        "VCPKG_BUILD_TYPE": "debug"
       }
     },
     {
@@ -39,7 +44,8 @@
         "ASAN": true,
         "ASAN_ENABLED": "ON",
         "TSAN": false,
-        "TSAN_ENABLED": "OFF"
+        "TSAN_ENABLED": "OFF",
+        "VCPKG_BUILD_TYPE": "debug"
       }
     },
     {

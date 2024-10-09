@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unity.h>
 
@@ -88,10 +89,31 @@ static void test_ptr_align_down(void) {
     TEST_ASSERT_EQUAL_PTR(8, PTR_ALIGN_DOWN_T((uint64_t *)9));
 }
 
+static void test_snprintf() {
+    char buf[8] = {0};
+
+    memset(buf, 0, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%s", "A big payload. Much larger than the receiving buffer can handle");
+    TEST_ASSERT_EQUAL(0, buf[sizeof(buf) - 1]);
+
+    if (0)
+    {
+        memset(buf, 0, sizeof(buf));
+        strncpy(buf, "A big payload. Much larger than the receiving buffer can handle", sizeof(buf));
+        TEST_ASSERT_EQUAL(0, buf[sizeof(buf) - 1]);
+    }
+
+    char buf0[0] = "";
+    char *result = strncpy(buf0, "foobar", 1);
+    TEST_ASSERT_EQUAL(buf0, result);
+    TEST_ASSERT_EQUAL(0, sizeof(buf0));
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ptr_is_aligned);
     RUN_TEST(test_ptr_align_up);
     RUN_TEST(test_ptr_align_down);
+    RUN_TEST(test_snprintf);
     return UNITY_END();
 }

@@ -36,8 +36,7 @@ static void print_brief_description(const char *progname);
 static void print_version(void);
 static void print_use_help_for_more_information(const char *progname);
 
-static int main2(const int port,
-                 const char **defines, int32_t num_defines) {
+static int main2(const int port, const char **defines, int32_t num_defines) {
     (void)defines;
     (void)num_defines;
 
@@ -59,13 +58,12 @@ static int main2(const int port,
         exit(EXIT_FAILURE);
     }
 
-
     memset(&serv_addr, 0, sizeof(serv_addr));
     memset(sendBuff, 0, sizeof(sendBuff));
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons((uint16_t) port);
+    serv_addr.sin_port = htons((uint16_t)port);
 
     char err_msg_buf[4096] = {0};
     int rc = 0;
@@ -95,7 +93,7 @@ static int main2(const int port,
 
         // NOTE(d.paro): Dumb GET HTTP body extractor. Completely unsafe !!!!
         while ((nread = read(connfd, http_req, sizeof(http_req))) > 0) {
-            printf("%.*s", (int) nread, http_req);
+            printf("%.*s", (int)nread, http_req);
             fflush(stdout);
 
             if (http_req[nread - 2] == '\r' && http_req[nread - 1] == '\n') {
@@ -106,22 +104,22 @@ static int main2(const int port,
         char *first_space = strchr(http_req, ' ');
         char *second_space = strchr(first_space + 1, ' ');
 
-
         printf("first_space offset: %zu\n", first_space - http_req);
         printf("second_space offset: %zu\n", second_space - http_req);
 
         char http_verb[16];
         char http_path[1024] = {0};
 
-        strncpy(http_path, first_space + 1, MIN((uintptr_t) ARRAY_LEN(http_path), (uintptr_t) second_space - (uintptr_t) first_space - 1));
-        strncpy(http_verb, http_req, MIN((uintptr_t) ARRAY_LEN(http_verb), (uintptr_t) first_space - (uintptr_t) http_req));
-
+        strncpy(http_path, first_space + 1,
+                MIN((uintptr_t)ARRAY_LEN(http_path),
+                    (uintptr_t)second_space - (uintptr_t)first_space - 1));
+        strncpy(http_verb, http_req,
+                MIN((uintptr_t)ARRAY_LEN(http_verb), (uintptr_t)first_space - (uintptr_t)http_req));
 
         printf("\n\n");
         printf("Parsed HTTP Verb: %s\n", http_verb);
         printf("Parsed requested path: %s\n", http_path);
         printf("\n");
-
 
         FILE *conn = fdopen(dup(connfd), "w");
 
@@ -131,8 +129,7 @@ static int main2(const int port,
                 char buffer[64 * 1024] = {0};
                 FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
 
-
-                HtmlRenderer r = {0};
+                HtmlRendererCtx r = {0};
                 r.fstream = f;
 
                 html5_render_raw_text(&r, "<!DOCTYPE html>\n");
@@ -279,7 +276,7 @@ int main(int argc, char **argv) {
     int port = DEFAULT_PORT;
     if (port_opt->count > 0 && port_opt->ival) {
         if (port_opt->ival && (*port_opt->ival <= 0 || *port_opt->ival > UINT16_MAX)) {
-        log_warn("Invalid port specified %d, defaulting to %d", *port_opt->ival, port);
+            log_warn("Invalid port specified %d, defaulting to %d", *port_opt->ival, port);
         } else {
             port = *port_opt->ival;
         }

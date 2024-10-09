@@ -6,21 +6,9 @@
 [submodule "deps/log.c"]
 	path = deps/log.c
 	url = https://github.com/dparo/log.c/
-[submodule "deps/argtable3"]
-	path = deps/argtable3
-	url = https://github.com/argtable/argtable3
-[submodule "deps/doxygen-awesome-css"]
-	path = deps/doxygen-awesome-css
-	url = https://github.com/jothepro/doxygen-awesome-css.git
-[submodule "deps/debugbreak"]
-	path = deps/debugbreak
-	url = https://github.com/scottt/debugbreak
-[submodule "deps/libuv"]
-	path = deps/libuv
-	url = https://github.com/libuv/libuv
-[submodule "deps/hedley"]
-	path = deps/hedley
-	url = https://github.com/nemequ/hedley
 [submodule "deps/Unity"]
 	path = deps/Unity
 	url = https://github.com/ThrowTheSwitch/Unity
+[submodule "vcpkg"]
+	path = vcpkg
+	url = https://github.com/microsoft/vcpkg.git
