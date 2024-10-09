@@ -31,6 +31,13 @@ find_package(Python3 3.12 REQUIRED COMPONENTS Interpreter)
 
 find_program(CURL_EXE NAMES curl REQUIRED)
 
+find_package(CURL REQUIRED)
+find_package(argtable3 REQUIRED)
+find_package(hedley REQUIRED)
+find_package(scottt-debugbreak REQUIRED)
+find_package(cmocka REQUIRED)
+find_package(ZLIB REQUIRED)
+
 string(JOIN ";" PYTHON_ENV_PROP
        "PYTHONPATH=${CMAKE_SOURCE_DIR}/src/python3:$ENV{PYTHONPATH}"
        "MYPYPATH=${CMAKE_SOURCE_DIR}/src/python3:$ENV{MYPYPATH}")

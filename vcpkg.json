@@ -3,6 +3,7 @@
     "curl",
     "libuv",
     "llhttp",
+    "zlib",
     "argtable3",
     "scottt-debugbreak",
     "hedley",

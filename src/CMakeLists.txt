@@ -53,7 +53,8 @@ configure_file("version.c.in" "${CMAKE_CURRENT_BINARY_DIR}/version.c" @ONLY)
 
 add_library(libmain sum.c html5.c)
 target_include_directories(libmain PUBLIC ./)
-target_link_libraries(libmain PUBLIC debugbreak logc "${CURL_LIBRARIES}")
+target_link_libraries(libmain PUBLIC debugbreak logc CURL::libcurl hedley scottt-debugbreak)
+target_link_libraries(libmain PUBLIC ZLIB::ZLIB)
 target_include_directories(libmain PUBLIC "${DEPS_DIR}/hedley" "${CURL_INCLUDE_DIRS}")
 
 add_executable("${PROJECT_NAME}" main.c "${CMAKE_CURRENT_BINARY_DIR}/version.c")
