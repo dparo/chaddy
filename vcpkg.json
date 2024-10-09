@@ -2,6 +2,7 @@
   "dependencies": [
     "curl",
     "libuv",
+    "llhttp",
     "argtable3",
     "scottt-debugbreak",
     "hedley",
