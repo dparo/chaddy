@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set(TEST_SOURCES_LIST "simple.c" "std.c" "html5_render.c")
+set(TEST_SOURCES_LIST "std.c" "html5_render.c")
 set(TEST_PYTHON_LIST "test_py.py")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -16,7 +16,7 @@ foreach(SRC IN LISTS TEST_SOURCES_LIST)
     get_filename_component(TARGET "${SRC}" NAME_WE)
 
     add_executable("${TARGET}" "${SRC}")
-    target_link_libraries("${TARGET}" PRIVATE unity)
+    # target_link_libraries("${TARGET}" PRIVATE unity)
     target_link_libraries("${TARGET}" PRIVATE cmocka::cmocka)
     target_link_libraries("${TARGET}" PRIVATE libmain)
     target_link_libraries("${TARGET}" PRIVATE logc)

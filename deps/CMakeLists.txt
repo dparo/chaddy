@@ -92,15 +92,15 @@ endfunction()
 #     FetchGitSubmodule("${DEPS_DIR}/doxygen-awesome-css")
 # endif()
 
-FetchGitSubmodule("${DEPS_DIR}/log.c")
-FetchGitSubmodule("${DEPS_DIR}/Unity")
+# FetchGitSubmodule("${DEPS_DIR}/log.c")
+# FetchGitSubmodule("${DEPS_DIR}/Unity")
 
-# Customize logc
-add_library(logc STATIC "${CMAKE_SOURCE_DIR}/deps/log.c/src/log.c")
-target_include_directories(logc PUBLIC "${CMAKE_SOURCE_DIR}/deps/log.c/src")
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_DEBUG")
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_INFO")
-endif()
+# # Customize logc
+# add_library(logc STATIC "${CMAKE_SOURCE_DIR}/deps/log.c/src/log.c")
+# target_include_directories(logc PUBLIC "${CMAKE_SOURCE_DIR}/deps/log.c/src")
+#
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_DEBUG")
+# elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+#     target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_INFO")
+# endif()

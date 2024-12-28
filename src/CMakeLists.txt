@@ -59,6 +59,15 @@ add_custom_command(
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+add_library(logc logc/log.c)
+target_include_directories(logc PUBLIC logc)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_DEBUG")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_INFO")
+endif()
+
+
 add_library(libmain sum.c html5.c "${CMAKE_CURRENT_BINARY_DIR}/app_css.css.c" )
 target_include_directories(libmain PUBLIC ./)
 target_link_libraries(libmain PUBLIC m)
