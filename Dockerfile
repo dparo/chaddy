@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*;
 
 # Set the working directory in the container
 WORKDIR /app
@@ -24,13 +24,20 @@ WORKDIR /app
 COPY . /app
 
 ARG VCPKG_ROOT=/app/vcpkg
+
 # Create a build directory and run cmake to build the project
-RUN cmake -B build -S ./ --preset release
+RUN cmake -B /app/build -S ./ --preset release && cmake --build /app/build;
+
 
 # Stage 2: Run the C program
 
-# FROM alpine:3.21
-FROM ubuntu:24.04
+
+FROM alpine:3.21
+RUN apk add --no-cache gcompat;
+
+# FROM ubuntu:24.04
+
+RUN mkdir -p /app
 
 
 # Set the working directory for the runtime image
@@ -44,4 +51,3 @@ EXPOSE 3000
 
 # Set the default command to run the executable
 CMD ["/app/chaddy", "-p", "3000"]
-

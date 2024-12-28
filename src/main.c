@@ -243,6 +243,8 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                 // MSG_NOSIGNAL Prevents SIGPIPE signal when writing
                 // to sockets that were prematurely closed on the cliends end
                 send(connfd, buffer, (size_t)sz, MSG_NOSIGNAL);
+            } else if (0 == strcmp("/site.webmanifest", http_path)) {
+                // TODO(d.paro): Serve /site.webmanifest
             } else if (0 == strcmp("/favicon.ico", http_path)) {
                 // TODO(d.paro): Serve the favicon
             } else {
