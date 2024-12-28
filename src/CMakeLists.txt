@@ -51,14 +51,27 @@ set_target_properties("mypy-src" PROPERTIES ENVIRONMENT "${PYTHON_ENV_PROP}")
 # generate version.c
 configure_file("version.c.in" "${CMAKE_CURRENT_BINARY_DIR}/version.c" @ONLY)
 
-add_library(libmain sum.c html5.c)
+add_executable("cembedfile" cembedfile/cembedfile.c)
+add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/app_css.css.c"
+    COMMAND cembedfile "${CMAKE_CURRENT_BINARY_DIR}/app_css.css.c" ../output.css app_css
+    DEPENDS ../output.css
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
+add_library(libmain sum.c html5.c "${CMAKE_CURRENT_BINARY_DIR}/app_css.css.c" )
 target_include_directories(libmain PUBLIC ./)
-target_link_libraries(libmain PUBLIC debugbreak logc CURL::libcurl hedley scottt-debugbreak)
+target_link_libraries(libmain PUBLIC m)
+target_link_libraries(libmain PUBLIC logc CURL::libcurl)
 target_link_libraries(libmain PUBLIC ZLIB::ZLIB)
-target_include_directories(libmain PUBLIC "${DEPS_DIR}/hedley" "${CURL_INCLUDE_DIRS}")
+target_link_libraries(libmain PRIVATE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)
+target_include_directories(libmain PUBLIC "${HEDLEY_INCLUDE_DIRS}" "${SCOTTT_DEBUGBREAK_INCLUDE_DIRS}" "${CURL_INCLUDE_DIRS}")
+
+
 
 add_executable("${PROJECT_NAME}" main.c "${CMAKE_CURRENT_BINARY_DIR}/version.c")
 target_link_libraries("${PROJECT_NAME}" PRIVATE libmain)
-target_link_libraries("${PROJECT_NAME}" PRIVATE argtable3 m)
+target_link_libraries("${PROJECT_NAME}" PRIVATE m)
+target_link_libraries("${PROJECT_NAME}" PRIVATE argtable3::argtable3)
 target_include_directories("${PROJECT_NAME}"
                            PRIVATE "${DEPS_DIR}/argtable3/src")

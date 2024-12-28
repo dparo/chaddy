@@ -30,11 +30,13 @@ unset(Python3_EXECUTABLE)
 find_package(Python3 3.12 REQUIRED COMPONENTS Interpreter)
 
 find_program(CURL_EXE NAMES curl REQUIRED)
-
+find_package(Argtable3 CONFIG REQUIRED)
 find_package(CURL REQUIRED)
-find_package(argtable3 REQUIRED)
-find_package(hedley REQUIRED)
-find_package(scottt-debugbreak REQUIRED)
+find_package(libuv CONFIG REQUIRED)
+# find_package(argtable3 REQUIRED)
+# find_package(hedley REQUIRED)
+find_path(HEDLEY_INCLUDE_DIRS "hedley.h")
+find_path(SCOTTT_DEBUGBREAK_INCLUDE_DIRS "debugbreak.h")
 find_package(cmocka REQUIRED)
 find_package(ZLIB REQUIRED)
 

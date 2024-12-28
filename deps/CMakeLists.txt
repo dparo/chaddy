@@ -35,8 +35,8 @@ include(ExternalProject)
 find_package(Git REQUIRED)
 find_program(MAKE_EXE NAMES gmake nmake make REQUIRED)
 
-CPMAddPackage("https://git.cryptomilk.org/projects/cmocka.git#cmocka-1.1.7")
-CPMAddPackage("https://github.com/libuv/libuv.git#v1.47.0")
+# CPMAddPackage("https://git.cryptomilk.org/projects/cmocka.git#cmocka-1.1.7")
+# CPMAddPackage("https://github.com/libuv/libuv.git#v1.47.0")
 
 
 # Define custom Fetch function for submodules. If classical CMAKE

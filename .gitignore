@@ -62,3 +62,7 @@ _deps
 *.cxxflags
 *.files
 *.includes
+
+node_modules
+
+/.task

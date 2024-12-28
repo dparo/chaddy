@@ -29,12 +29,17 @@
 
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
-    DEFAULT_PORT = 5000,
+    DEFAULT_PORT = 3000,
 };
 
 static void print_brief_description(const char *progname);
 static void print_version(void);
 static void print_use_help_for_more_information(const char *progname);
+
+
+extern const size_t app_css_len;
+extern const uint8_t app_css[];
+
 
 static int main2(const int port, const char **defines, int32_t num_defines) {
     (void)defines;
@@ -81,11 +86,24 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
     }
 
     printf("Listening on port %d ...\n", port);
+    printf("Press Ctrl-C to stop\n");
+
     while (1) {
         connfd = accept(listenfd, (struct sockaddr *)NULL, NULL);
         if (connfd <= 0) {
             perror("Failed to accept");
             return EXIT_FAILURE;
+        }
+
+        // Setup so_linger. Do not abrupttely trim pending DMA packets within the network card when closing the socket: https://blog.netherlabs.nl/articles/2009/01/18/the-ultimate-so_linger-page-or-why-is-my-tcp-not-reliable
+        {
+            struct linger so_linger;
+            so_linger.l_onoff = true;
+            so_linger.l_linger = 30;
+            if (setsockopt(connfd, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) < 0) {
+                snprintf(err_msg_buf, ARRAY_LEN(err_msg_buf), "Failed to set so_linger on socket fd %d", connfd);
+                perror(err_msg_buf);
+            }
         }
 
         char http_req[64 * 1024];
@@ -121,10 +139,15 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
         printf("Parsed requested path: %s\n", http_path);
         printf("\n");
 
+        // Done reading from socket
+        shutdown(connfd, SHUT_RD);
+
         FILE *conn = fdopen(dup(connfd), "w");
 
         if (0 == strcasecmp("get", http_verb)) {
-            if (0 == strcmp("/", http_path) || 0 == strcmp("/index.html", http_path)) {
+            if (0 == strcmp("/output.css", http_path)) {
+                // TODO(dparo): Serve the CSS
+            } else if (0 == strcmp("/", http_path) || 0 == strcmp("/index.html", http_path)) {
 
                 char buffer[64 * 1024] = {0};
                 FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
@@ -139,18 +162,24 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                         META(&r, {"charset", "utf-8"});
                         META(&r, {"http-equiv", "content-language"}, {"content", "en"});
                         META(&r, {"name", "title"}, {"content", title});
+                        LINK(&r, {"rel", "stylesheet"}, {"href", "output.css"});
                         TITLE(&r, title);
                         SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@1.9.10"});
                     }
                     BODY(&r) {
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
+
+                        // <button class="btn btn-primary">Primary</button>
+                        BUTTON(&r, {"class", "btn btn-primary"}) {
+                            html5_render_escaped(&r, "Primary");
+                        }
                         BR(&r);
                         for (int i = 0; i < 100; i++) {
                             char buf[128] = {0};
                             snprintf(buf, ARRAY_LEN(buf), "Hello world %d", i);
                             bool cond = rand() % 2;
-                            B_IF(&r, cond, {"class", "foo"}, {"style", "bold"}) {
+                            B_IF(&r, cond, {"class", "font-bold py-2 px-4 rounded inline-flex items-center bg-blue-300 hover:bg-blue-400 text-gray-800 "}, {"style", "bold"}) {
                                 html5_render_escaped(&r, buf);
                             }
                             BR(&r);
@@ -180,8 +209,25 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", 0L);
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
                 fprintf(conn, "\r\n");
+                fflush(conn);
             }
         } else {
+        }
+
+        // TODO(d.paro): Serve static files using `man sendfile(2)` (available only on linux)
+        //   Static paths: {static, resources, res, cs, js, ttf, imgs, img}
+        // TODO(d.paro): Bake static in the executable??
+        // NOTE(d.paro): sendfile() is faster than a user-space read() / write() copy loop, because this copying is done within the kernel.
+
+        // Done writing to socket
+        shutdown(connfd, SHUT_WR);
+
+        // Drain the read end of the socket (At most 4 MegaBytes to guarantee termination in case of malicious paylods)
+        for (int32_t i = 0; i < 256; i++) {
+            ssize_t nread = read(connfd, http_req, 16384);
+            if (nread <= 0) {
+                break;
+            }
         }
 
         fclose(conn);
@@ -233,6 +279,16 @@ int main(int argc, char **argv) {
 
     nerrors = arg_parse(argc, argv, argtable);
 
+    /* If the parser returned any errors then display them and exit */
+    if (nerrors > 0) {
+        arg_print_errors(stdout, end, progname);
+        print_use_help_for_more_information(progname);
+        exitcode = 1;
+        goto exit;
+    }
+
+
+
     /* special case: '--help' takes precedence over error reporting */
     if (help->count > 0) {
         print_brief_description(progname);
@@ -247,14 +303,6 @@ int main(int argc, char **argv) {
     if (version->count > 0) {
         print_version();
         exitcode = 0;
-        goto exit;
-    }
-
-    /* If the parser returned any errors then display them and exit */
-    if (nerrors > 0) {
-        arg_print_errors(stdout, end, progname);
-        print_use_help_for_more_information(progname);
-        exitcode = 1;
         goto exit;
     }
 

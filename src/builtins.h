@@ -25,6 +25,12 @@
 #define CC_ATTRIB_CONST HEDLEY_CONST
 
 #ifdef __GNUC__
+#define CC_ATTRIB_PACKED __attribute__((packed))
+#elif defined(_MSC_VER)
+#error "Unspported platform for defining CC_ATTRIB_PACKED"
+#endif
+
+#ifdef __GNUC__
 #define CC_ATTRIB_UNUSED __attribute__((unused))
 #else
 #define CC_ATTRIB_UNUSED
@@ -78,8 +84,6 @@ typedef uint64_t u64_t;
 typedef float f32_t;
 typedef double f64_t;
 
-#define PTR(p) ((uintptr_t)(p))
-#define UINTPTR(p) ((uintptr_t)(p))
 
 #if __cplusplus
 }

@@ -1,0 +1,32 @@
+version: "3"
+
+# TODO(d.paro): Completare questo file
+
+tasks:
+  assets-build:
+    cmds:
+      - npx tailwindcss --input input.css -o output.css --optimize --minify
+
+  assets-watch:
+    cmds:
+      - npx tailwindcss --input input.css -o output.css --optimize --watch
+
+  configure:
+    cmds:
+      - cmake --workflow --preset debug-asan
+
+  build:
+    cmds:
+      - cmake --build --preset=debug-asan
+
+  serve:
+    watch: true
+    sources:
+      - '**/CMakeLists.txt'
+      - 'src/**/*.c'
+      - 'src/**/*.h'
+      - '**/*.css'
+      - '**/*.html'
+    deps: [assets-build, build]
+    cmds:
+      - ./target/debug-asan/src/chaddy -p 3000

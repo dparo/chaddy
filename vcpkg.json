@@ -3,6 +3,7 @@
     "curl",
     "libuv",
     "llhttp",
+    "openssl",
     "zlib",
     "argtable3",
     "scottt-debugbreak",
