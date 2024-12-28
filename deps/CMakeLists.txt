@@ -88,9 +88,9 @@ function(FetchArchiveConfigureAndMakeAndInstall name url)
     endif()
 endfunction()
 
-if(BUILD_DOC)
-    FetchGitSubmodule("${DEPS_DIR}/doxygen-awesome-css")
-endif()
+# if(BUILD_DOC)
+#     FetchGitSubmodule("${DEPS_DIR}/doxygen-awesome-css")
+# endif()
 
 FetchGitSubmodule("${DEPS_DIR}/log.c")
 FetchGitSubmodule("${DEPS_DIR}/Unity")

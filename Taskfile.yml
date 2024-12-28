@@ -27,6 +27,8 @@ tasks:
       - 'src/**/*.h'
       - '**/*.css'
       - '**/*.html'
-    deps: [assets-build, build]
+    deps:
+      # - assets-build
+      - build
     cmds:
       - ./target/debug-asan/src/chaddy -p 3000

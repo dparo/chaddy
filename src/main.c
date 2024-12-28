@@ -30,6 +30,8 @@
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
     DEFAULT_PORT = 3000,
+    SERVE_CUSTOM_CSS = 0,
+    FORCE_LIGHT_THEME = 1,
 };
 
 static void print_brief_description(const char *progname);
@@ -145,8 +147,22 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
         FILE *conn = fdopen(dup(connfd), "w");
 
         if (0 == strcasecmp("get", http_verb)) {
-            if (0 == strcmp("/output.css", http_path)) {
-                // TODO(dparo): Serve the CSS
+            if (SERVE_CUSTOM_CSS && 0 == strcmp("/output.css", http_path)) {
+                fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
+                fprintf(conn, "%s: %zu\r\n", "Content-Length", app_css_len);
+                fprintf(conn, "%s: %s\r\n", "Content-Type", "text/css; charset=utf-8");
+                fprintf(conn, "%s: %s\r\n", "Connection", "close");
+                fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
+                fprintf(conn, "\r\n");
+                fflush(conn);
+
+                fprintf(conn, "\r\n");
+                fflush(conn);
+
+                // MSG_NOSIGNAL Prevents SIGPIPE signal when writing
+                // to sockets that were prematurely closed on the cliends end
+                send(connfd, app_css, (size_t)app_css_len, MSG_NOSIGNAL);
             } else if (0 == strcmp("/", http_path) || 0 == strcmp("/index.html", http_path)) {
 
                 char buffer[64 * 1024] = {0};
@@ -156,23 +172,48 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                 r.fstream = f;
 
                 html5_render_raw_text(&r, "<!DOCTYPE html>\n");
-                HTML(&r, {"lang", "en"}) {
+                HTML(&r, {"lang", "en"}, {FORCE_LIGHT_THEME ? "data-theme" : NULL, "light"}) {
                     HEAD(&r) {
                         const char title[] = "CHADDY <&'>";
                         META(&r, {"charset", "utf-8"});
                         META(&r, {"http-equiv", "content-language"}, {"content", "en"});
                         META(&r, {"name", "title"}, {"content", title});
-                        LINK(&r, {"rel", "stylesheet"}, {"href", "output.css"});
                         TITLE(&r, title);
-                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@1.9.10"});
+
+                        if (SERVE_CUSTOM_CSS) {
+                            LINK(&r, {"rel", "stylesheet"}, {"href", "output.css"}, {"type", "text/css"});
+                        }
+
+                        if (!SERVE_CUSTOM_CSS) {
+                            LINK(&r, {"rel", "stylesheet"}, {"href", "https://cdn.jsdelivr.net/npm/daisyui@5.0.0-alpha.58/daisyui.css"});
+                            SCRIPT(&r, NULL, {"src", "https://cdn.tailwindcss.com"});
+                        }
+
+                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@2.0.4"});
+                        SCRIPT(&r, NULL, {"type", "module"} , { "src", "https://unpkg.com/cally"});
                     }
                     BODY(&r) {
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
 
-                        // <button class="btn btn-primary">Primary</button>
+                        BUTTON(&r, {"class", "btn"}) {
+                            html5_render_escaped(&r, "Normal Button");
+                        }
                         BUTTON(&r, {"class", "btn btn-primary"}) {
                             html5_render_escaped(&r, "Primary");
+                        }
+                        BUTTON(&r, {"class", "btn btn-secondary"}) {
+                            html5_render_escaped(&r, "Secondary");
+                        }
+
+                        // <calendar-date class="cally bg-base-100 border border-base-300 shadow-lg rounded-box">
+                        HTML_ELEM(&r, "calendar-date", {"class", "cally bg-base-100 border border-base-300 shadow-lg rounded-box"}) {
+
+                            html5_render_raw_text(&r, "<svg aria-label=\"Previous\" class=\"size-4\" slot=\"previous\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M15.75 19.5 8.25 12l7.5-7.5\"></path></svg>");
+                            html5_render_raw_text(&r, "<svg aria-label=\"Next\" class=\"size-4\" slot=\"next\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"m8.25 4.5 7.5 7.5-7.5 7.5\"></path></svg>");
+                            // <calendar-month></calendar-month>
+                            HTML_ELEM(&r, "calendar-month") {
+                            }
                         }
                         BR(&r);
                         for (int i = 0; i < 100; i++) {

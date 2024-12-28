@@ -1,6 +1,10 @@
 @import "tailwindcss" source(none);
-@plugin "daisyui";
 
+@plugin "daisyui" {
+    /* Disable dark theme support in order to reduce CSS size */
+    /* themes: light --default, dark --prefersdark; */
+    themes: light --default;
+}
 /* Content sources */
 @source "*.css";
 @source "./static/**/*.html";
