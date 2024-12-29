@@ -14,14 +14,24 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    nodejs \
     curl \
+    wget \
     && rm -rf /var/lib/apt/lists/*;
+
+# Install pnpm (lower dependecies requirements compared to npm)
+RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -;
 
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the local C source code and CMakeLists.txt to the container
 COPY . /app
+
+# Install NPM dependencies
+RUN /root/.local/share/pnpm/pnpm install;
+# Run tailwind to build the CSS asset
+RUN /root/.local/share/pnpm/pnpm exec tailwindcss --input input.css -o output.css --optimize --minify;
 
 ARG VCPKG_ROOT=/app/vcpkg
 

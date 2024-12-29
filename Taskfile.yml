@@ -5,11 +5,11 @@ version: "3"
 tasks:
   assets-build:
     cmds:
-      - npx tailwindcss --input input.css -o output.css --optimize --minify
+      - pnpm exec tailwindcss --input input.css -o output.css --optimize --minify
 
   assets-watch:
     cmds:
-      - npx tailwindcss --input input.css -o output.css --optimize --watch
+      - pnpm exec tailwindcss --input input.css -o output.css --optimize --watch
 
   configure:
     cmds:
