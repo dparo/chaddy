@@ -22,6 +22,7 @@
 #include "std.h"
 #include "version.h"
 #include "html5.h"
+#include "html5_htmx.h"
 
 #include <log.h>
 #include <argtable3.h>
@@ -228,14 +229,13 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                         // Alpine Core: https://alpinejs.dev
                         SCRIPT(&r, NULL, {"defer", NULL}, {"src", "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"});
                     }
-                    BODY(&r) {
+                    BODY(&r, {"hx-ext", "alpine-morph"}) { // Enable Apine Morph HTMX Extension (makes hx-swap="morph" available and use Alpine JS Morph functionality)
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
                         BUTTON(&r, {"class", "btn"}) {
                             html5_render_escaped(&r, "Normal Button");
                         }
-                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"},
-                               {"hx-swap", "afterend"}) {
+                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"}, HX_SWAP_AFTER_END_ATTRIB) {
                             html5_render_escaped(&r, "Click me to append new button");
                         }
                         BUTTON(&r, {"class", "btn btn-secondary"}) {
