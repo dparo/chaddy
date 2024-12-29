@@ -163,6 +163,32 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                 // MSG_NOSIGNAL Prevents SIGPIPE signal when writing
                 // to sockets that were prematurely closed on the cliends end
                 send(connfd, app_css, (size_t)app_css_len, MSG_NOSIGNAL);
+            } else if (0 == strcmp("/get-route", http_path)) {
+                char buffer[64 * 1024] = {0};
+                FILE *f = fmemopen(buffer, ARRAY_LEN(buffer), "w");
+
+                HtmlRendererCtx r = {0};
+                r.fstream = f;
+
+                BUTTON(&r, {"class", "btn"}) {
+                    html5_render_escaped(&r, "Button was clicked");
+                }
+
+                fflush(f);
+                fseek(f, 0L, SEEK_END);
+                long int sz = ftell(f);
+
+                fprintf(conn, "%s\r\n", "HTTP/1.1 200 OK");
+                fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
+                fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
+                fprintf(conn, "%s: %s\r\n", "Connection", "close");
+                fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
+                fprintf(conn, "\r\n");
+                fflush(conn);
+
+                // MSG_NOSIGNAL Prevents SIGPIPE signal when writing
+                // to sockets that were prematurely closed on the cliends end
+                send(connfd, buffer, (size_t)sz, MSG_NOSIGNAL);
             } else if (0 == strcmp("/", http_path) || 0 == strcmp("/index.html", http_path)) {
 
                 char buffer[64 * 1024] = {0};
@@ -189,18 +215,28 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                             SCRIPT(&r, NULL, {"src", "https://cdn.tailwindcss.com"});
                         }
 
-                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@2.0.4"});
                         SCRIPT(&r, NULL, {"type", "module"} , { "src", "https://unpkg.com/cally"});
+
+                        // HTMX 2.0 Core: https://htmx.org/
+                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@2.0.4"});
+                        // HTMX 2.0 Extension for Alpine Morph: https://github.com/bigskysoftware/htmx-extensions/blob/main/src/alpine-morph/README.md
+                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx-ext-alpine-morph@2.0.0/alpine-morph.js"});
+
+                        // Alpine Morph Plugin: https://alpinejs.dev/plugins/morph
+                        SCRIPT(&r, NULL, {"defer", NULL}, {"src", "https://unpkg.com/@alpinejs/morph@3.x.x/dist/cdn.min.js"});
+
+                        // Alpine Core: https://alpinejs.dev
+                        SCRIPT(&r, NULL, {"defer", NULL}, {"src", "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"});
                     }
                     BODY(&r) {
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
-
                         BUTTON(&r, {"class", "btn"}) {
                             html5_render_escaped(&r, "Normal Button");
                         }
-                        BUTTON(&r, {"class", "btn btn-primary"}) {
-                            html5_render_escaped(&r, "Primary");
+                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"},
+                               {"hx-swap", "afterend"}) {
+                            html5_render_escaped(&r, "Click me to append new button");
                         }
                         BUTTON(&r, {"class", "btn btn-secondary"}) {
                             html5_render_escaped(&r, "Secondary");
