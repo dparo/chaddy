@@ -23,6 +23,10 @@ The project is still under development.
 - [ ] HTTP requests parsing trough `llhttp` (streaming HTTP parsing library)
 - [ ] Thread pool for serving application layer login in each requests
 - [ ] `minicoro` library integration for freeing thread execution to do other work when waiting for IO.
+- [ ] Hot code reloading for application level code ( + http router)
+  - [ ] Build application level code to a DLL
+  - [ ] Websocket implementation for refreshing the browser tab (+ implement remote debugging console)
+- [ ] Emscripten for webassembly support (share the same validation logic written in C also for the browser)
 
 ### Features
 
