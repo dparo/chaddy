@@ -27,6 +27,7 @@ The project is still under development.
   - [ ] Build application level code to a DLL
   - [ ] Websocket implementation for refreshing the browser tab (+ implement remote debugging console)
 - [ ] Emscripten for webassembly support (share the same validation logic written in C also for the browser)
+- [ ] Support For [Server Sent Events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
 
 ### Features
 
