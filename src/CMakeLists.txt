@@ -67,13 +67,22 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(logc PUBLIC "RXI_LOGC_DEFAULT_LEVEL=LOG_INFO")
 endif()
 
+pkg_check_modules(liburing REQUIRED IMPORTED_TARGET GLOBAL liburing>=2.0)
 
 add_library(libmain sum.c html5.c "${CMAKE_CURRENT_BINARY_DIR}/app_css.css.c" )
 target_include_directories(libmain PUBLIC ./)
 target_link_libraries(libmain PUBLIC m)
-target_link_libraries(libmain PUBLIC logc CURL::libcurl)
+target_link_libraries(libmain PRIVATE llhttp::llhttp_static)
+target_link_libraries(libmain PUBLIC logc)
+target_link_libraries(libmain PUBLIC CURL::libcurl)
+target_link_libraries(libmain PRIVATE OpenSSL::SSL)
+target_link_libraries(libmain PRIVATE OpenSSL::Crypto)
 target_link_libraries(libmain PUBLIC ZLIB::ZLIB)
-target_link_libraries(libmain PRIVATE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)
+
+target_link_libraries(libmain PUBLIC ZLIB::ZLIB)
+# target_link_libraries(libmain PRIVATE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)
+target_link_libraries(libmain PUBLIC PkgConfig::liburing)
+
 target_include_directories(libmain PUBLIC "${HEDLEY_INCLUDE_DIRS}" "${SCOTTT_DEBUGBREAK_INCLUDE_DIRS}" "${CURL_INCLUDE_DIRS}")
 
 
