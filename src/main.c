@@ -33,6 +33,7 @@ enum {
     DEFAULT_PORT = 3000,
     SERVE_CUSTOM_CSS = 0,
     FORCE_LIGHT_THEME = 1,
+    META_AUTO_REFRESH_PAGE = 0,
 };
 
 static void print_brief_description(const char *progname);
@@ -205,6 +206,9 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                         META(&r, {"charset", "utf-8"});
                         META(&r, {"http-equiv", "content-language"}, {"content", "en"});
                         META(&r, {"name", "title"}, {"content", title});
+                        if (META_AUTO_REFRESH_PAGE) {
+                            META(&r, {"http-equiv", "refresh"}, {"content", "5"});
+                        }
                         TITLE(&r, title);
 
                         if (SERVE_CUSTOM_CSS) {
