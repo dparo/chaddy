@@ -5,7 +5,7 @@
 
 ---
 CompileFlags:
-  CompilationDatabase: build/debug/
+  CompilationDatabase: build/debug-asan/
 
   Add:
     - -Wall

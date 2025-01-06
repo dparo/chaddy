@@ -28,6 +28,12 @@
 #include <argtable3.h>
 #include <hedley.h>
 
+#ifdef NDEBUG
+#define DEFAULT_HOST "0.0.0.0"
+#else
+#define DEFAULT_HOST "127.0.0.1"
+#endif
+
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
     DEFAULT_PORT = 3000,
@@ -40,12 +46,10 @@ static void print_brief_description(const char *progname);
 static void print_version(void);
 static void print_use_help_for_more_information(const char *progname);
 
-
 extern const size_t app_css_len;
 extern const uint8_t app_css[];
 
-
-static int main2(const int port, const char **defines, int32_t num_defines) {
+static int main2(const char *host, const int port, const char **defines, int32_t num_defines) {
     (void)defines;
     (void)num_defines;
 
@@ -70,8 +74,18 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
     memset(&serv_addr, 0, sizeof(serv_addr));
     memset(sendBuff, 0, sizeof(sendBuff));
 
+    in_addr_t s_addr = INADDR_ANY;
+    if (host && *host != '\0') {
+        int rc = inet_pton(AF_INET, host, &s_addr);
+
+        if (!rc) {
+            fprintf(stderr, "Failed to listen on %s", host);
+            return EXIT_FAILURE;
+        }
+    }
+
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_addr.s_addr = s_addr;
     serv_addr.sin_port = htons((uint16_t)port);
 
     char err_msg_buf[4096] = {0};
@@ -89,7 +103,7 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
         return EXIT_FAILURE;
     }
 
-    printf("Listening on port %d ...\n", port);
+    printf("Listening on %s:%d ...\n", host, port);
     printf("Press Ctrl-C to stop\n");
 
     while (1) {
@@ -99,13 +113,16 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
             return EXIT_FAILURE;
         }
 
-        // Setup so_linger. Do not abrupttely trim pending DMA packets within the network card when closing the socket: https://blog.netherlabs.nl/articles/2009/01/18/the-ultimate-so_linger-page-or-why-is-my-tcp-not-reliable
+        // Setup so_linger. Do not abrupttely trim pending DMA packets within the network card when
+        // closing the socket:
+        // https://blog.netherlabs.nl/articles/2009/01/18/the-ultimate-so_linger-page-or-why-is-my-tcp-not-reliable
         {
             struct linger so_linger;
             so_linger.l_onoff = true;
             so_linger.l_linger = 30;
             if (setsockopt(connfd, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger)) < 0) {
-                snprintf(err_msg_buf, ARRAY_LEN(err_msg_buf), "Failed to set so_linger on socket fd %d", connfd);
+                snprintf(err_msg_buf, ARRAY_LEN(err_msg_buf),
+                         "Failed to set so_linger on socket fd %d", connfd);
                 perror(err_msg_buf);
             }
         }
@@ -172,9 +189,7 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                 HtmlRendererCtx r = {0};
                 r.fstream = f;
 
-                BUTTON(&r, {"class", "btn"}) {
-                    html5_render_escaped(&r, "Button was clicked");
-                }
+                BUTTON(&r, {"class", "btn"}) { html5_render_escaped(&r, "Button was clicked"); }
 
                 fflush(f);
                 fseek(f, 0L, SEEK_END);
@@ -212,55 +227,78 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
                         TITLE(&r, title);
 
                         if (SERVE_CUSTOM_CSS) {
-                            LINK(&r, {"rel", "stylesheet"}, {"href", "output.css"}, {"type", "text/css"});
+                            LINK(&r, {"rel", "stylesheet"}, {"href", "output.css"},
+                                 {"type", "text/css"});
                         }
 
                         if (!SERVE_CUSTOM_CSS) {
-                            LINK(&r, {"rel", "stylesheet"}, {"href", "https://cdn.jsdelivr.net/npm/daisyui@5.0.0-alpha.58/daisyui.css"});
+                            LINK(&r, {"rel", "stylesheet"},
+                                 {"href", "https://cdn.jsdelivr.net/npm/daisyui@5.0.0-alpha.58/"
+                                          "daisyui.css"});
                             SCRIPT(&r, NULL, {"src", "https://cdn.tailwindcss.com"});
                         }
 
-                        SCRIPT(&r, NULL, {"type", "module"} , { "src", "https://unpkg.com/cally"});
+                        SCRIPT(&r, NULL, {"type", "module"}, {"src", "https://unpkg.com/cally"});
 
                         // HTMX 2.0 Core: https://htmx.org/
                         SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@2.0.4"});
-                        // HTMX 2.0 Extension for Alpine Morph: https://github.com/bigskysoftware/htmx-extensions/blob/main/src/alpine-morph/README.md
-                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx-ext-alpine-morph@2.0.0/alpine-morph.js"});
+                        // HTMX 2.0 Extension for Alpine Morph:
+                        // https://github.com/bigskysoftware/htmx-extensions/blob/main/src/alpine-morph/README.md
+                        SCRIPT(&r, NULL,
+                               {"src",
+                                "https://unpkg.com/htmx-ext-alpine-morph@2.0.0/alpine-morph.js"});
 
                         // Alpine Morph Plugin: https://alpinejs.dev/plugins/morph
-                        SCRIPT(&r, NULL, {"defer", NULL}, {"src", "https://unpkg.com/@alpinejs/morph@3.x.x/dist/cdn.min.js"});
+                        SCRIPT(&r, NULL, {"defer", NULL},
+                               {"src", "https://unpkg.com/@alpinejs/morph@3.x.x/dist/cdn.min.js"});
 
                         // Alpine Core: https://alpinejs.dev
-                        SCRIPT(&r, NULL, {"defer", NULL}, {"src", "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"});
+                        SCRIPT(&r, NULL, {"defer", NULL},
+                               {"src", "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"});
                     }
-                    BODY(&r, {"hx-ext", "alpine-morph"}) { // Enable Apine Morph HTMX Extension (makes hx-swap="morph" available and use Alpine JS Morph functionality)
+                    BODY(&r, {"hx-ext", "alpine-morph"}) { // Enable Apine Morph HTMX Extension
+                                                           // (makes hx-swap="morph" available and
+                                                           // use Alpine JS Morph functionality)
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
-                        BUTTON(&r, {"class", "btn"}) {
-                            html5_render_escaped(&r, "Normal Button");
-                        }
-                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"}, HX_SWAP_AFTER_END_ATTRIB) {
+                        BUTTON(&r, {"class", "btn"}) { html5_render_escaped(&r, "Normal Button"); }
+                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"},
+                               HX_SWAP_AFTER_END_ATTRIB) {
                             html5_render_escaped(&r, "Click me to append new button");
                         }
                         BUTTON(&r, {"class", "btn btn-secondary"}) {
                             html5_render_escaped(&r, "Secondary");
                         }
 
-                        // <calendar-date class="cally bg-base-100 border border-base-300 shadow-lg rounded-box">
-                        HTML_ELEM(&r, "calendar-date", {"class", "cally bg-base-100 border border-base-300 shadow-lg rounded-box"}) {
+                        // <calendar-date class="cally bg-base-100 border border-base-300 shadow-lg
+                        // rounded-box">
+                        HTML_ELEM(
+                            &r, "calendar-date",
+                            {"class",
+                             "cally bg-base-100 border border-base-300 shadow-lg rounded-box"}) {
 
-                            html5_render_raw_text(&r, "<svg aria-label=\"Previous\" class=\"size-4\" slot=\"previous\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M15.75 19.5 8.25 12l7.5-7.5\"></path></svg>");
-                            html5_render_raw_text(&r, "<svg aria-label=\"Next\" class=\"size-4\" slot=\"next\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"m8.25 4.5 7.5 7.5-7.5 7.5\"></path></svg>");
+                            html5_render_raw_text(
+                                &r, "<svg aria-label=\"Previous\" class=\"size-4\" "
+                                    "slot=\"previous\" xmlns=\"http://www.w3.org/2000/svg\" "
+                                    "viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M15.75 "
+                                    "19.5 8.25 12l7.5-7.5\"></path></svg>");
+                            html5_render_raw_text(
+                                &r, "<svg aria-label=\"Next\" class=\"size-4\" slot=\"next\" "
+                                    "xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 "
+                                    "24\"><path fill=\"currentColor\" d=\"m8.25 4.5 7.5 7.5-7.5 "
+                                    "7.5\"></path></svg>");
                             // <calendar-month></calendar-month>
-                            HTML_ELEM(&r, "calendar-month") {
-                            }
+                            HTML_ELEM(&r, "calendar-month") {}
                         }
                         BR(&r);
                         for (int i = 0; i < 100; i++) {
                             char buf[128] = {0};
                             snprintf(buf, ARRAY_LEN(buf), "Hello world %d", i);
                             bool cond = rand() % 2;
-                            B_IF(&r, cond, {"class", "font-bold py-2 px-4 rounded inline-flex items-center bg-blue-300 hover:bg-blue-400 text-gray-800 "}, {"style", "bold"}) {
+                            B_IF(&r, cond,
+                                 {"class", "font-bold py-2 px-4 rounded inline-flex items-center "
+                                           "bg-blue-300 hover:bg-blue-400 text-gray-800 "},
+                                 {"style", "bold"}) {
                                 html5_render_escaped(&r, buf);
                             }
                             BR(&r);
@@ -300,12 +338,14 @@ static int main2(const int port, const char **defines, int32_t num_defines) {
         // TODO(d.paro): Serve static files using `man sendfile(2)` (available only on linux)
         //   Static paths: {static, resources, res, cs, js, ttf, imgs, img}
         // TODO(d.paro): Bake static in the executable??
-        // NOTE(d.paro): sendfile() is faster than a user-space read() / write() copy loop, because this copying is done within the kernel.
+        // NOTE(d.paro): sendfile() is faster than a user-space read() / write() copy loop, because
+        // this copying is done within the kernel.
 
         // Done writing to socket
         shutdown(connfd, SHUT_WR);
 
-        // Drain the read end of the socket (At most 4 MegaBytes to guarantee termination in case of malicious paylods)
+        // Drain the read end of the socket (At most 4 MegaBytes to guarantee termination in case of
+        // malicious paylods)
         for (int32_t i = 0; i < 256; i++) {
             ssize_t nread = read(connfd, http_req, 16384);
             if (nread <= 0) {
@@ -342,10 +382,12 @@ int main(int argc, char **argv) {
                   "stored (default none)");
     struct arg_lit *help = arg_lit0(NULL, "help", "print this help and exit");
     struct arg_lit *version = arg_lit0(NULL, "version", "print version information and exit");
-    struct arg_int *port_opt = arg_int0("p", "port", "<int>", "Specify the server port");
+    struct arg_str *host_opt =
+        arg_str0("h", "host", "<string>", "Host to listen on (default: " DEFAULT_HOST ")");
+    struct arg_int *port_opt = arg_int0("p", "port", "<int>", "Port to listen on (default: 3000)");
     struct arg_end *end = arg_end(MAX_NUMBER_OF_ERRORS_TO_DISPLAY);
 
-    void *argtable[] = {help, version, verbose, logfile, defines, port_opt, end};
+    void *argtable[] = {help, version, verbose, logfile, defines, port_opt, host_opt, end};
 
     int nerrors = 0;
     int exitcode = 0;
@@ -369,8 +411,6 @@ int main(int argc, char **argv) {
         exitcode = 1;
         goto exit;
     }
-
-
 
     /* special case: '--help' takes precedence over error reporting */
     if (help->count > 0) {
@@ -404,8 +444,26 @@ int main(int argc, char **argv) {
         }
     }
 
+    const char *host = DEFAULT_HOST;
+    if (host_opt->count > 0 && host_opt->sval[0]) {
+        host = host_opt->sval[0];
+        in_addr_t s_addr = INADDR_ANY;
+        int rc = inet_pton(AF_INET, host, &s_addr);
+        if (!rc) {
+            fprintf(stderr, "Invalid host specified %s\n", host);
+            exitcode = EXIT_FAILURE;
+            goto exit;
+        }
+
+#ifndef NDEBUG
+        if (s_addr == INADDR_ANY) {
+            fprintf(stderr, "!!! WARNING !!! Listening on host %s is discouraged when developing locally\n", host);
+        }
+#endif
+    }
+
     int port = DEFAULT_PORT;
-    if (port_opt->count > 0 && port_opt->ival) {
+    if (port_opt->count > 0 && port_opt->ival[0]) {
         if (port_opt->ival && (*port_opt->ival <= 0 || *port_opt->ival > UINT16_MAX)) {
             log_warn("Invalid port specified %d, defaulting to %d", *port_opt->ival, port);
         } else {
@@ -413,7 +471,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    exitcode = main2(port, defines->sval, defines->count);
+    exitcode = main2(host, port, defines->sval, defines->count);
 
 exit:
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));

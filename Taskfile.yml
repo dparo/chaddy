@@ -1,6 +1,14 @@
 version: "3"
 
-# TODO(d.paro): Completare questo file
+# TODO(d.paro): Complete this file
+
+interval: 500ms
+
+vars:
+  PRESET: '{{.PRESET | default "debug-asan"}}'
+  PORT: '{{.PORT | default 3000}}'
+  HOST: '{{.HOST | default "127.0.0.1"}}'
+
 
 tasks:
   assets-build:
@@ -13,13 +21,21 @@ tasks:
 
   configure:
     cmds:
-      - cmake --workflow --preset debug-asan
+      - cmake --workflow --preset {{.PRESET}}
 
   build:
     cmds:
-      - cmake --build --preset=debug-asan
+      - cmake --build --preset={{.PRESET}}
 
   serve:
+    deps:
+      # - assets-build
+      - build
+
+    cmds:
+      - ./build/{{.PRESET}}/src/chaddy --host {{.HOST}} -p {{.PORT}}
+
+  serve:watch:
     watch: true
     sources:
       - '**/CMakeLists.txt'
@@ -28,7 +44,5 @@ tasks:
       - '**/*.css'
       - '**/*.html'
     deps:
-      # - assets-build
-      - build
-    cmds:
-      - ./target/debug-asan/src/chaddy -p 3000
+      - serve
+
