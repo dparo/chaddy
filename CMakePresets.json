@@ -11,7 +11,7 @@
       "displayName": "Default Config",
       "description": "Default build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/target/${presetName}",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "environment": {},
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",

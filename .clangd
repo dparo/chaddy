@@ -5,6 +5,8 @@
 
 ---
 CompileFlags:
+  CompilationDatabase: build/debug/
+
   Add:
     - -Wall
     - -Wextra
