@@ -33,6 +33,7 @@ tasks:
       - build
 
     cmds:
+      # - gdbserver --once --no-startup-with-shell 127.0.0.1:10000 ./build/{{.PRESET}}/src/chaddy --host {{.HOST}} -p {{.PORT}}
       - ./build/{{.PRESET}}/src/chaddy --host {{.HOST}} -p {{.PORT}}
 
   serve:watch:
