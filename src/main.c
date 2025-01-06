@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
     const char *progname = argv[0];
     FILE *log_file_handle = NULL;
 
-    if (argc == 1) {
+    if (argc == 0) {
         print_brief_description(progname);
         print_version();
         printf("\n");
