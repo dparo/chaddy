@@ -30,6 +30,8 @@ static const HtmlAttrib HX_SWAP_AFTER_BEGIN_ATTRIB = {"hx-swap", "afterbegin"};
 static const HtmlAttrib HX_SWAP_BEFORE_END_ATTRIB = {"hx-swap", "beforeend"};
 static const HtmlAttrib HX_SWAP_AFTER_END_ATTRIB = {"hx-swap", "afterend"};
 
+static const HtmlAttrib HX_PRELOAD_EXT_MOUSEDOWN_ATTRIB = {"preload", "mousedown"};
+
 static inline HtmlAttrib hx_swap_attrib(char *s) {
     const HtmlAttrib result = {.key = "hx-swap", .value = s};
     return result;
