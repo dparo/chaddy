@@ -171,7 +171,8 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", app_css_len);
                 fprintf(conn, "%s: %s\r\n", "Content-Type", "text/css; charset=utf-8");
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
-                fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                // fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                fprintf(conn, "%s: %s\r\n", "Cache-Control", "no-cache");
                 fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
                 fprintf(conn, "\r\n");
                 fflush(conn);
@@ -242,6 +243,9 @@ static int main2(const char *host, const int port, const char **defines, int32_t
 
                         // HTMX 2.0 Core: https://htmx.org/
                         SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx.org@2.0.4"});
+                        // HTMX 2.0 Preload Extension (Ability to prefetch HTML fragments on mouse-hover, mousedown, etc)
+                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/htmx-ext-preload@2.1.0/preload.js" });
+
                         // HTMX 2.0 Extension for Alpine Morph:
                         // https://github.com/bigskysoftware/htmx-extensions/blob/main/src/alpine-morph/README.md
                         SCRIPT(&r, NULL,
@@ -255,10 +259,18 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                         // Alpine Core: https://alpinejs.dev
                         SCRIPT(&r, NULL, {"defer", NULL},
                                {"src", "https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"});
+
+                        // Highlight JS plugin
+                        LINK(&r, {"rel", "stylesheet"}, {"href", "https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/default.min.css"});
+                        SCRIPT(&r, NULL, {"src", "https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"});
+
+                        SCRIPT(&r, "hljs.highlightAll();");
                     }
-                    BODY(&r, {"hx-ext", "alpine-morph"}) { // Enable Apine Morph HTMX Extension
-                                                           // (makes hx-swap="morph" available and
-                                                           // use Alpine JS Morph functionality)
+
+                    // Enable
+                    //      - Apine Morph HTMX Extension: makes hx-swap="morph" available and use Alpine JS Morph functionality)
+                    //      - HTMX Preload Extension: allows you to load HTML fragments into your browser’s cache before they are requested by the user
+                    BODY(&r, {"hx-ext", "alpine-morph,preload"}) {
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
                         BUTTON(&r, {"class", "btn"}) { html5_render_escaped(&r, "Normal Button"); }
@@ -268,6 +280,14 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                         }
                         BUTTON(&r, {"class", "btn btn-secondary"}) {
                             html5_render_escaped(&r, "Secondary");
+                        }
+
+                        DIV(&r) {
+                            PRE(&r) {
+                                CODE(&r, {"class", "language-c"}) {
+                                    html5_render_escaped(&r, "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char** argv) {\n    printf(\"Hello world\\n\");\n    return EXIT_SUCCESS;\n}");
+                                }
+                            }
                         }
 
                         // <calendar-date class="cally bg-base-100 border border-base-300 shadow-lg
