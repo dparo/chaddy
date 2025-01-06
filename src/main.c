@@ -171,8 +171,8 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", app_css_len);
                 fprintf(conn, "%s: %s\r\n", "Content-Type", "text/css; charset=utf-8");
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
-                // fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
-                fprintf(conn, "%s: %s\r\n", "Cache-Control", "no-cache");
+                fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                // fprintf(conn, "%s: %s\r\n", "Cache-Control", "no-cache");
                 fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
                 fprintf(conn, "\r\n");
                 fflush(conn);
@@ -190,7 +190,7 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 HtmlRendererCtx r = {0};
                 r.fstream = f;
 
-                BUTTON(&r, {"class", "btn"}) { html5_render_escaped(&r, "Button was clicked"); }
+                BUTTON(&r, {"class", "btn"}) { html5_render_text(&r, "Button was clicked"); }
 
                 fflush(f);
                 fseek(f, 0L, SEEK_END);
@@ -215,7 +215,7 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 HtmlRendererCtx r = {0};
                 r.fstream = f;
 
-                html5_render_raw_text(&r, "<!DOCTYPE html>\n");
+                html5_render_text_unescaped(&r, "<!DOCTYPE html>\n");
                 HTML(&r, {"lang", "en"}, {FORCE_LIGHT_THEME ? "data-theme" : NULL, "light"}) {
                     HEAD(&r) {
                         const char title[] = "CHADDY <&'>";
@@ -273,19 +273,19 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                     BODY(&r, {"hx-ext", "alpine-morph,preload"}) {
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
-                        BUTTON(&r, {"class", "btn"}) { html5_render_escaped(&r, "Normal Button"); }
-                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"},
+                        BUTTON(&r, {"class", "btn"}) { html5_render_text(&r, "Normal Button"); }
+                        BUTTON(&r, {"class", "btn btn-primary"}, {"hx-get", "/get-route"}, HX_PRELOAD_EXT_MOUSEDOWN_ATTRIB,
                                HX_SWAP_AFTER_END_ATTRIB) {
-                            html5_render_escaped(&r, "Click me to append new button");
+                            html5_render_text(&r, "Click me to append new button");
                         }
                         BUTTON(&r, {"class", "btn btn-secondary"}) {
-                            html5_render_escaped(&r, "Secondary");
+                            html5_render_text(&r, "Secondary");
                         }
 
                         DIV(&r) {
                             PRE(&r) {
                                 CODE(&r, {"class", "language-c"}) {
-                                    html5_render_escaped(&r, "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char** argv) {\n    printf(\"Hello world\\n\");\n    return EXIT_SUCCESS;\n}");
+                                    html5_render_text(&r, "#include <stdio.h>\n#include <stdlib.h>\n\nint main(int argc, char** argv) {\n    printf(\"Hello world\\n\");\n    return EXIT_SUCCESS;\n}");
                                 }
                             }
                         }
@@ -297,12 +297,12 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                             {"class",
                              "cally bg-base-100 border border-base-300 shadow-lg rounded-box"}) {
 
-                            html5_render_raw_text(
+                            html5_render_text_unescaped(
                                 &r, "<svg aria-label=\"Previous\" class=\"size-4\" "
                                     "slot=\"previous\" xmlns=\"http://www.w3.org/2000/svg\" "
                                     "viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M15.75 "
                                     "19.5 8.25 12l7.5-7.5\"></path></svg>");
-                            html5_render_raw_text(
+                            html5_render_text_unescaped(
                                 &r, "<svg aria-label=\"Next\" class=\"size-4\" slot=\"next\" "
                                     "xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 "
                                     "24\"><path fill=\"currentColor\" d=\"m8.25 4.5 7.5 7.5-7.5 "
@@ -319,7 +319,7 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                                  {"class", "font-bold py-2 px-4 rounded inline-flex items-center "
                                            "bg-blue-300 hover:bg-blue-400 text-gray-800 "},
                                  {"style", "bold"}) {
-                                html5_render_escaped(&r, buf);
+                                html5_render_text(&r, buf);
                             }
                             BR(&r);
                         }

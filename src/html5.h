@@ -93,8 +93,8 @@ typedef struct HtmlAttrib {
 } HtmlAttrib;
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
-void html5_render_raw_text(HtmlRendererCtx *r, const char *string);
-void html5_render_escaped(HtmlRendererCtx *r, const char *string);
+void html5_render_text_unescaped(HtmlRendererCtx *r, const char *string);
+void html5_render_text(HtmlRendererCtx *r, const char *string);
 void html5_render_elem_end(HtmlRendererCtx *r);
 void html5_render_elem_begin(HtmlRendererCtx *r, const char *tag, size_t num_attribs,
                              const HtmlAttrib attribs[num_attribs]);
@@ -138,16 +138,16 @@ void html5_render_void_elem(HtmlRendererCtx *r, const char *tag, size_t num_attr
 
 // https://html.spec.whatwg.org/multipage/syntax.html#cdata-rcdata-restrictions
 #define SCRIPT(r, content, ...)                                                                    \
-    HTML_ELEM(r, "script", __VA_ARGS__) do { html5_render_raw_text((r), (content)); }              \
+    HTML_ELEM(r, "script", __VA_ARGS__) do { html5_render_text_unescaped((r), (content)); }              \
     while (0)
 #define STYLE(r, content, ...)                                                                     \
-    HTML_ELEM(r, "style", __VA_ARGS__) do { html5_render_raw_text((r), (content)); }               \
+    HTML_ELEM(r, "style", __VA_ARGS__) do { html5_render_text_unescaped((r), (content)); }               \
     while (0)
 #define TITLE(r, content, ...)                                                                     \
-    HTML_ELEM(r, "title", __VA_ARGS__) do { html5_render_escaped((r), (content)); }                \
+    HTML_ELEM(r, "title", __VA_ARGS__) do { html5_render_text((r), (content)); }                \
     while (0)
 #define TEXTAREA(r, content, ...)                                                                  \
-    HTML_ELEM(r, "textarea", __VA_ARGS__) do { html5_render_escaped((r), (content)); }             \
+    HTML_ELEM(r, "textarea", __VA_ARGS__) do { html5_render_text((r), (content)); }             \
     while (0)
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Void_element

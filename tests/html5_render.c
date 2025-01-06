@@ -49,7 +49,7 @@ static void test_html5_render_escaped(void **_state) {
     TestState *state = *_state;
     HtmlRendererCtx r = {0};
     r.fstream = state->f;
-    html5_render_escaped(&r, state->input);
+    html5_render_text(&r, state->input);
     fflush(state->f);
     assert_string_equal(state->buf, state->expected_output);
 }

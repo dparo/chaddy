@@ -9,12 +9,12 @@
 #include <stdint.h>
 #include <string.h>
 
-void html5_render_raw_text(HtmlRendererCtx *const r, const char *string) {
+void html5_render_text_unescaped(HtmlRendererCtx *const r, const char *string) {
     if (string && *string != '\0')
         fprintf(r->fstream, "%s", string);
 }
 
-void html5_render_escaped(HtmlRendererCtx *const r, const char *string) {
+void html5_render_text(HtmlRendererCtx *const r, const char *string) {
     if (string == NULL) {
         return;
     }
@@ -47,14 +47,14 @@ static void render_attrs(HtmlRendererCtx *const r, size_t num_attribs,
         const char *value = attribs[i].value;
 
         if (key && value) {
-            html5_render_escaped(r, key);
+            html5_render_text(r, key);
             fprintf(r->fstream, "=\"");
-            html5_render_escaped(r, value);
+            html5_render_text(r, value);
             fprintf(r->fstream, "\" ");
         } else if (key) {
             // NOTE(d.paro): HTML allows to have keys with no associated values, i.e: <option
             // value="foo" selected />
-            html5_render_escaped(r, key);
+            html5_render_text(r, key);
             fprintf(r->fstream, " ");
         }
     }
@@ -71,7 +71,7 @@ void html5_render_void_elem(HtmlRendererCtx *const r, const char *tag, size_t nu
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
-        html5_render_escaped(r, tag);
+        html5_render_text(r, tag);
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, "/>");
     }
@@ -89,7 +89,7 @@ void html5_render_elem_begin(HtmlRendererCtx *const r, const char *tag, size_t n
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "<");
-        html5_render_escaped(r, tag);
+        html5_render_text(r, tag);
         render_attrs(r, num_attribs, attribs);
         fprintf(r->fstream, ">");
     }
@@ -106,7 +106,7 @@ void html5_render_elem_end(HtmlRendererCtx *const r) {
 
     if (tag != NULL && *tag != '\0') {
         fprintf(r->fstream, "</");
-        html5_render_escaped(r, tag);
+        html5_render_text(r, tag);
         fprintf(r->fstream, ">");
     }
 }
