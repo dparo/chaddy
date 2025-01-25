@@ -5,6 +5,8 @@
     /* themes: light --default, dark --prefersdark; */
     themes: light --default;
 }
+
+
 /* Content sources */
 @source "*.css";
 @source "./static/**/*.html";
@@ -17,5 +19,4 @@
 
 }
 
-/* https://alpinejs.dev/directives/cloak */
-[x-cloak] { display: none !important; }
+@import "./app.css"
