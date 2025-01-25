@@ -37,7 +37,7 @@
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
     DEFAULT_PORT = 3000,
-    SERVE_CUSTOM_CSS = 0,
+    SERVE_CUSTOM_CSS = 1,
     FORCE_LIGHT_THEME = 1,
     META_AUTO_REFRESH_PAGE = 0,
 };
@@ -200,6 +200,8 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
                 fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
+                fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                // fprintf(conn, "%s: %s\r\n", "Cache-Control", "no-cache");
                 fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
                 fprintf(conn, "\r\n");
                 fflush(conn);
@@ -264,7 +266,7 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                         LINK(&r, {"rel", "stylesheet"}, {"href", "https://unpkg.com/@highlightjs/cdn-assets@11.9.0/styles/default.min.css"});
                         SCRIPT(&r, NULL, {"src", "https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"});
 
-                        SCRIPT(&r, "hljs.highlightAll();");
+                        SCRIPT(&r, "document.addEventListener(\"DOMContentLoaded\", (event) => { hljs.highlightAll(); })");
                     }
 
                     // Enable
@@ -334,6 +336,8 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                 fprintf(conn, "%s: %zu\r\n", "Content-Length", sz);
                 fprintf(conn, "%s: %s\r\n", "Content-Type", "text/html; charset=utf-8");
                 fprintf(conn, "%s: %s\r\n", "Connection", "close");
+                fprintf(conn, "%s: %s\r\n", "Cache-Control", "public, max-age=300, s-maxage=300");
+                // fprintf(conn, "%s: %s\r\n", "Cache-Control", "no-cache");
                 fprintf(conn, "%s: %s\r\n", "Server-Timing", "miss, db;dur=53, app;dur=47.2");
                 fprintf(conn, "\r\n");
                 fflush(conn);

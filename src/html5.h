@@ -115,6 +115,7 @@ void html5_render_void_elem(HtmlRendererCtx *r, const char *tag, size_t num_attr
          !_html_elem_inner_loop_it_##__LINE__; _html_elem_inner_loop_it_##__LINE__ = 1, html5_render_elem_end(r))
 
 #define DIV_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "div" : NULL, __VA_ARGS__)
+#define SPAN_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "span" : NULL, __VA_ARGS__)
 #define H1_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "h1" : NULL, __VA_ARGS__)
 #define P_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "p" : NULL, __VA_ARGS__)
 #define PRE_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "pre" : NULL, __VA_ARGS__)
@@ -126,6 +127,7 @@ void html5_render_void_elem(HtmlRendererCtx *r, const char *tag, size_t num_attr
 #define BODY_IF(r, cond, ...) HTML_ELEM(r, (cond) ? "body" : NULL, __VA_ARGS__)
 
 #define DIV(r, ...) DIV_IF(r, true, __VA_ARGS__)
+#define SPAN(r, ...) SPAN_IF(r, true, __VA_ARGS__)
 #define H1(r, ...) H1_IF(r, true, __VA_ARGS__)
 #define P(r, ...) P_IF(r, true, __VA_ARGS__)
 #define PRE(r, ...) PRE_IF(r, true, __VA_ARGS__)
