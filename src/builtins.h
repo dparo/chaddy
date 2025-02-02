@@ -85,6 +85,8 @@ typedef float f32_t;
 typedef double f64_t;
 
 
+#define typecmp(a, b) _Generic(&(typeof(a)){}, typeof(&(typeof(b)){}): true, default: false)
+
 #if __cplusplus
 }
 #endif
