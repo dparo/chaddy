@@ -21,8 +21,7 @@ find_package(Git REQUIRED)
 find_package(CURL REQUIRED)     # HINTS CURL_USE_STATIC_LIBS
 
 execute_process(
-    COMMAND "${GIT_EXECUTABLE}" describe --match=NeVeRmAtCh --always --abbrev=40
-            --dirty
+    COMMAND "${GIT_EXECUTABLE}" describe --always --abbrev=16 --dirty=+
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_SHA1
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
