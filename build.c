@@ -22,6 +22,7 @@ exit "$?"
 char cwd[PATH_MAX];
 char build_dir[PATH_MAX];
 char build_ninja_path[PATH_MAX];
+char ninja_path[PATH_MAX];
 
 typedef enum BuildKind {
     DEBUG = (1 << 0),
@@ -72,6 +73,7 @@ static void ninja_add_build(FILE *file, NinjaBuild *b);
 static void ninja_add_default(FILE *file, char *target);
 
 static void ninja_setup_rules(FILE *file);
+static int utils_resolve_path(const char *exe, char out[PATH_MAX]);
 
 /*
     UTILS
@@ -86,6 +88,10 @@ int main(int argc, char **argv) {
     if ((rc = init()) != 0) {
         return rc;
     }
+    if (!utils_resolve_path("ninja", ninja_path)) {
+        fprintf(stderr, "Ninja was not found. Please make sure Ninja is installed: https://ninja-build.org/");
+        return EXIT_FAILURE;
+    }
 
     FILE *file = fopen(build_ninja_path, "w");
     ninja_setup_rules(file);
@@ -97,7 +103,14 @@ int main(int argc, char **argv) {
 
     fclose(file);
 
-    return execl("/usr/bin/ninja", "/usr/bin/ninja", "-C", build_dir, "-f", build_ninja_path, NULL);
+    // Execute Ninja
+    return execl(
+        ninja_path[0] ? ninja_path  : "/usr/bin/ninja",
+        ninja_path[0] ? ninja_path  : "/usr/bin/ninja",
+        "-C", build_dir,
+        "-f", build_ninja_path,
+        NULL
+    );
 }
 
 int init() {
@@ -123,8 +136,8 @@ int init() {
     return EXIT_SUCCESS;
 }
 
-int utils_is_executable_on_path(const char *exe_name) {
-    if (!exe_name || strlen(exe_name) == 0) {
+int utils_resolve_path(const char *exe, char output[PATH_MAX]) {
+    if (!exe || strlen(exe) == 0) {
         return 0;
     }
 
@@ -142,11 +155,14 @@ int utils_is_executable_on_path(const char *exe_name) {
     char *dir = strtok(path_dup, ":");
     while (dir) {
         char full_path[PATH_MAX];
-        snprintf(full_path, sizeof(full_path), "%s/%s", dir, exe_name);
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir, exe);
 
         // Check if the file exists and is executable
         if (access(full_path, X_OK) == 0) {
             free(path_dup);
+            if (output != NULL) {
+                snprintf(output, PATH_MAX, "%s", full_path);
+            }
             return 1;
         }
 
@@ -156,6 +172,11 @@ int utils_is_executable_on_path(const char *exe_name) {
     free(path_dup);
     return 0;
 }
+
+int utils_is_executable_on_path(const char *exe_name) {
+    return utils_resolve_path(exe_name, NULL);
+}
+
 
 void ninja_setup_rules(FILE *file) {
     ninja_add_var(file, "CFLAGS", "-Wall -Werror");
