@@ -83,7 +83,7 @@ static int init();
 
 int main(int argc, char **argv) {
     int rc;
-    if (!(rc = init())) {
+    if ((rc = init()) != 0) {
         return rc;
     }
 
@@ -109,12 +109,17 @@ int init() {
     }
 
     snprintf(build_dir, sizeof(build_dir), "%s/build", cwd);
-    snprintf(build_ninja_path, sizeof(build_ninja_path), "%s/build.ninja", build_ninja_path);
+    snprintf(build_ninja_path, sizeof(build_ninja_path), "%s/build.ninja", build_dir);
+
+    printf("CWD: %s\n", cwd);
+    printf("Build dir: %s\n", build_dir);
+    printf("build.ninja: %s\n", build_ninja_path);
 
     if (utils_create_directory(build_dir, 0755) != 0) {
         perror("mkdir failed");
         return EXIT_FAILURE;
     }
+
     return EXIT_SUCCESS;
 }
 
