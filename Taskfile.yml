@@ -21,7 +21,7 @@ tasks:
 
   configure:
     cmds:
-      - cmake --workflow --preset {{.PRESET}}
+      - cmake --preset {{.PRESET}}
 
   build:
     cmds:

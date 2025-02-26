@@ -43,6 +43,7 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(cmocka REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(yaml CONFIG REQUIRED)
 
 string(JOIN ";" PYTHON_ENV_PROP
        "PYTHONPATH=${CMAKE_SOURCE_DIR}/src/python3:$ENV{PYTHONPATH}"

@@ -77,6 +77,8 @@ target_link_libraries(libchaddy PUBLIC CURL::libcurl)
 target_link_libraries(libchaddy PRIVATE OpenSSL::SSL)
 target_link_libraries(libchaddy PRIVATE OpenSSL::Crypto)
 target_link_libraries(libchaddy PUBLIC ZLIB::ZLIB)
+target_link_libraries(libchaddy PRIVATE yaml)
+
 
 target_link_libraries(libchaddy PUBLIC ZLIB::ZLIB)
 # target_link_libraries(libchaddy PRIVATE $<IF:$<TARGET_EXISTS:libuv::uv_a>,libuv::uv_a,libuv::uv>)

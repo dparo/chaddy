@@ -273,6 +273,11 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                     //      - Apine Morph HTMX Extension: makes hx-swap="morph" available and use Alpine JS Morph functionality)
                     //      - HTMX Preload Extension: allows you to load HTML fragments into your browser’s cache before they are requested by the user
                     BODY(&r, {"hx-ext", "alpine-morph,preload"}) {
+
+                        DIV(&r, {"x-data", "{}"}) {
+                            BUTTON(&r, {"class", "btn"}, {"x-cloak", NULL}, {"x-show", "false"}) { html5_render_text(&r, "Questo bottone dovrebbe essere nascosto"); }
+                        }
+
                         INPUT(&r, {"type", "checkbox"}, {"checked", NULL}, {"name", "cheese"},
                               {rand() % 2 ? "disabled" : NULL, NULL});
                         BUTTON(&r, {"class", "btn"}) { html5_render_text(&r, "Normal Button"); }
@@ -385,7 +390,6 @@ static int main2(const char *host, const int port, const char **defines, int32_t
 }
 
 int main(int argc, char **argv) {
-
     const char *progname = argv[0];
     FILE *log_file_handle = NULL;
 
