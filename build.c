@@ -200,8 +200,8 @@ int utils_is_executable_on_path(const char *exe_name) {
 size_t shquote(const char *input, char *output, size_t out_numbytes) {
     size_t l = strlen(input);
 
-    int32_t num_quotes = 0;
-    for (int32_t i = 0; input[i]; i++) {
+    size_t num_quotes = 0;
+    for (size_t i = 0; input[i]; i++) {
         if (input[i] == '\'') {
             num_quotes += 1;
         }
@@ -210,7 +210,7 @@ size_t shquote(const char *input, char *output, size_t out_numbytes) {
     size_t required_size = l + (num_quotes == 0 ? 0 : 2) + num_quotes * 5;
 
     if (output) {
-        int32_t off = 0;
+        size_t off = 0;
         if (num_quotes != 0) {
             if (out_numbytes - off > 0) {
                 output[off++] = '\''; // open quote
