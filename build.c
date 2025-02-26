@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #if 0
 #/*
-set -x
-exe="$(mktemp)"
-cc build.c -o "$exe" -lcurl -larchive -lssl -lcrypto && "$exe"
+mkdir -p build && cc build.c -o ./build/build.c -lcurl -larchive -lssl -lcrypto && ./build/build.c
 exit "$?"
 # */
 #endif
@@ -74,6 +72,7 @@ static void ninja_add_default(FILE *file, char *target);
 
 static void ninja_setup_rules(FILE *file);
 static int utils_resolve_path(const char *exe, char out[PATH_MAX]);
+size_t shquote(const char *input, char *output, size_t outputsize);
 
 /*
     UTILS
@@ -103,13 +102,34 @@ int main(int argc, char **argv) {
 
     fclose(file);
 
-    // Execute Ninja
-    return execl(
-        ninja_path[0] ? ninja_path  : "/usr/bin/ninja",
-        ninja_path[0] ? ninja_path  : "/usr/bin/ninja",
+
+    printf("\n");
+
+
+    char *ninja_pathname = ninja_path[0] ? ninja_path  : "/usr/bin/ninja";
+    char *ninja_command_with_args[] = {
+        ninja_pathname,
         "-C", build_dir,
         "-f", build_ninja_path,
+        // "--verbose",
         NULL
+    };
+
+    for (int i = 0; ninja_command_with_args[i]; i++) {
+        char buf[4096] = {0};
+        shquote(ninja_command_with_args[i], buf, sizeof(buf));
+        if (i == 0) {
+            printf("+ %s", buf);
+        } else {
+            printf(" %s", buf);
+        }
+    }
+    printf("\n");
+
+    // Execute Ninja
+    return execv(
+        ninja_pathname,
+        ninja_command_with_args
     );
 }
 
@@ -177,19 +197,85 @@ int utils_is_executable_on_path(const char *exe_name) {
     return utils_resolve_path(exe_name, NULL);
 }
 
+size_t shquote(const char *input, char *output, size_t out_numbytes) {
+    size_t l = strlen(input);
+
+    int32_t num_quotes = 0;
+    for (int32_t i = 0; input[i]; i++) {
+        if (input[i] == '\'') {
+            num_quotes += 1;
+        }
+    }
+
+    size_t required_size = l + (num_quotes == 0 ? 0 : 2) + num_quotes * 5;
+
+    if (output) {
+        int32_t off = 0;
+        if (num_quotes != 0) {
+            if (out_numbytes - off > 0) {
+                output[off++] = '\''; // open quote
+            }
+        }
+        for (int32_t i = 0; input[i]; i++) {
+            if (input[i] == '\'') {
+                if (out_numbytes - off - 5 > 0) {
+                    output[off + 0] = '\'';
+                    output[off + 1] = '"';
+                    output[off + 2] = '\'';
+                    output[off + 3] = '"';
+                    output[off + 4] = '\'';
+                }
+                off += 5;
+            } else {
+                if (out_numbytes - off > 0) {
+                    output[off++] = input[i];
+                }
+            }
+        }
+        if (num_quotes != 0) {
+            if (out_numbytes - off > 0) {
+                output[off++] = '\''; // closing quote
+            }
+        }
+        if (out_numbytes - off > 0) {
+            output[off++] = '\0';
+        }
+    }
+
+    // Guarantee null terminator
+    if (output && out_numbytes >= 1) {
+        output[out_numbytes - 1] = '\0';
+    }
+
+    return required_size;
+}
 
 void ninja_setup_rules(FILE *file) {
     ninja_add_var(file, "CFLAGS", "-Wall -Werror");
     ninja_add_var(file, "IDIRS", "");
     ninja_add_var(file, "LDFLAGS", "");
+
     {
         char compile_command[4096];
         snprintf(compile_command, sizeof(compile_command),
                  "%scc -MD -MF $out.d -o $out $CFLAGS $IDIRS $in",
                  utils_is_executable_on_path("bear") ? "bear -- " : "");
 
-        ninja_add_rule(file, &(NinjaRule){.name = "cc", .command = compile_command, .vars = {}});
+        ninja_add_rule(file, &(NinjaRule){.name = "cc", .command = compile_command, .vars = {
+            { .key = "description", .value = "cc $in"},
+        }});
     }
+
+    // {
+    //     ninja_add_rule(file, &(NinjaRule){.name = "build.ninja", .command = "cc -o $out $in", .vars = {}});
+    // }
+    //
+    // ninja_add_build(file, &(NinjaBuild){.outputs = {build_ninja_path},
+    //                                     .name = "build.ninja",
+    //                                     .inputs = {"build.c"},
+    //                                     .dependencies = {""}});
+
+
 }
 
 int utils_create_directory(const char *path, mode_t mode) {
