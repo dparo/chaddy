@@ -6,6 +6,7 @@ exit "$?"
 # */
 #endif
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -64,13 +65,14 @@ typedef struct NinjaBuild {
     KeyValuePair params[4096];
 } NinjaBuild;
 
+static void ninja_lex_write_escape(FILE *f, char *s, bool escape_colon);
 static void ninja_add_var(FILE *file, char *key, char *value);
 static void ninja_add_rule(FILE *file, NinjaRule *r);
 static void ninja_add_cc_rule(FILE *file, const char *name, const char *command);
 static void ninja_add_build(FILE *file, NinjaBuild *b);
 static void ninja_add_default(FILE *file, char *target);
 
-static void ninja_setup_rules(FILE *file);
+static void ninja_setup_rules(FILE *file, char *build_dir);
 static int utils_resolve_path(const char *exe, char out[PATH_MAX]);
 size_t shquote(const char *input, char *output, size_t outputsize);
 
@@ -93,7 +95,7 @@ int main(int argc, char **argv) {
     }
 
     FILE *file = fopen(build_ninja_path, "w");
-    ninja_setup_rules(file);
+    ninja_setup_rules(file, build_dir);
     ninja_add_build(file, &(NinjaBuild){.outputs = {"helloworld"},
                                         .name = "cc",
                                         .inputs = {"helloworld.c", "src/sum.c"},
@@ -250,7 +252,15 @@ size_t shquote(const char *input, char *output, size_t out_numbytes) {
     return required_size;
 }
 
-void ninja_setup_rules(FILE *file) {
+
+void ninja_lex_write_escape(FILE *f, char *s, bool escape_colon) {
+    char buf[4096] = {0};
+}
+
+void ninja_setup_rules(FILE *file, char *build_dir) {
+    ninja_add_var(file, "builddir", build_dir);
+    ninja_add_var(file, "ninja_required_version", "1.10");
+    fprintf(file, "\n");
     ninja_add_var(file, "CFLAGS", "-Wall -Werror");
     ninja_add_var(file, "IDIRS", "");
     ninja_add_var(file, "LDFLAGS", "");
