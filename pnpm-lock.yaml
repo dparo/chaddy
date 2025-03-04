@@ -16,8 +16,8 @@ importers:
         version: 4.0.0
     devDependencies:
       daisyui:
-        specifier: ^5.0.0-beta.2
-        version: 5.0.0-beta.2
+        specifier: ^5.0.0
+        version: 5.0.0
 
 packages:
 
@@ -184,8 +184,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  daisyui@5.0.0-beta.2:
-    resolution: {integrity: sha512-H1gXtcQhjcKze3UBq23dJUyKYIxHrVIKb6XtDfnSh6Ft4d0BMfPOwuvzIsuEe5PkbBm9kZH0ny+aQqiDosqpPQ==}
+  daisyui@5.0.0:
+    resolution: {integrity: sha512-U0K9Bac3Bi3zZGm6ojrw12F0vBHTpEgf46zv/BYxLe07hF0Xnx7emIQliwaRBgJuYhY0BhwQ6wSnq5cJXHA2yA==}
 
   detect-libc@1.0.3:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
@@ -442,7 +442,7 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  daisyui@5.0.0-beta.2: {}
+  daisyui@5.0.0: {}
 
   detect-libc@1.0.3: {}
 
