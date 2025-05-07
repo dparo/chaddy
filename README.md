@@ -36,4 +36,4 @@ The project is still under development.
 - [ ] JSON parser for handling JSON requests
 - [ ] Middleware support for blocking/handling/modifying requests.
 - [ ] RestController + Controller support
-- [ ] Rate limiting with average sliding window tracked for each user (in order to block spammers)
+- [ ] Rate limiting with average sliding window tracked for each user (in order to block spammers). See https://smudge.ai/blog/ratelimit-algorithms
