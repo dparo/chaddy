@@ -13,8 +13,6 @@ SPDX-License-Identifier: Apache-2.0
 
 The project is still under development.
 
-## TODO
-
 ### Code Architecture
 
 - [ ] Integration with Linux `io_uring` for handling async HTTP requests
@@ -38,4 +36,4 @@ The project is still under development.
 - [ ] JSON parser for handling JSON requests
 - [ ] Middleware support for blocking/handling/modifying requests.
 - [ ] RestController + Controller support
-
+- [ ] Rate limiting with average sliding window tracked for each user (in order to block spammers)
