@@ -40,12 +40,12 @@ execute_process(
     OUTPUT_VARIABLE GIT_COMMIT_SUBJECT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-add_custom_target(
-    "mypy-src" ALL
-    COMMAND ${Python3_EXECUTABLE} -m mypy "${CMAKE_CURRENT_SOURCE_DIR}/python3"
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-set_target_properties("mypy-src" PROPERTIES ENVIRONMENT "${PYTHON_ENV_PROP}")
+# add_custom_target(
+#     "mypy-src" ALL
+#     COMMAND ${Python3_EXECUTABLE} -m mypy "${CMAKE_CURRENT_SOURCE_DIR}/python3"
+#     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+#
+# set_target_properties("mypy-src" PROPERTIES ENVIRONMENT "${PYTHON_ENV_PROP}")
 
 # generate version.c
 configure_file("version.c.in" "${CMAKE_CURRENT_BINARY_DIR}/version.c" @ONLY)
