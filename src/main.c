@@ -34,6 +34,34 @@
 #define DEFAULT_HOST "127.0.0.1"
 #endif
 
+
+char htmx_config[] =
+    "{\n"
+    "  \"disableInheritance\": true,\n"
+    "  \"defaultSwapStyle\": \"outerHTML\",\n"
+    "  \"historyCacheSize\": 0,\n"
+    "  \"responseHandling\": [\n"
+    "    {\n"
+    "      \"code\": \"204\",\n"
+    "      \"swap\": false\n"
+    "    },\n"
+    "    {\n"
+    "      \"code\": \"[23]..\",\n"
+    "      \"swap\": true\n"
+    "    },\n"
+    "    {\n"
+    "      \"code\": \"[45]..\",\n"
+    "      \"swap\": false,\n"
+    "      \"error\": true\n"
+    "    },\n"
+    "    {\n"
+    "      \"code\": \"...\",\n"
+    "      \"swap\": false\n"
+    "    }\n"
+    "  ]\n"
+    "}\n"
+;
+
 enum {
     MAX_NUMBER_OF_ERRORS_TO_DISPLAY = 16,
     DEFAULT_PORT = 3000,
@@ -224,6 +252,7 @@ static int main2(const char *host, const int port, const char **defines, int32_t
                         META(&r, {"charset", "utf-8"});
                         META(&r, {"http-equiv", "content-language"}, {"content", "en"});
                         META(&r, {"name", "title"}, {"content", title});
+                        META(&r, {"name", "htmx-config"}, {"content", htmx_config});
                         if (META_AUTO_REFRESH_PAGE) {
                             META(&r, {"http-equiv", "refresh"}, {"content", "5"});
                         }
