@@ -1,11 +1,11 @@
-#include <stdlib.h>
 #if 0
 #/*
-mkdir -p build && cc build.c -o ./build/build.c -lcurl -larchive -lssl -lcrypto && ./build/build.c
+mkdir -p build && cc build.c -o ./build/build.c -lcurl -lz -lssl -lcrypto && ./build/build.c "$@"
 exit "$?"
 # */
 #endif
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -17,6 +17,12 @@ exit "$?"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
+#include "tinyargs.h"
 
 char cwd[PATH_MAX];
 char build_dir[PATH_MAX];
@@ -85,6 +91,21 @@ static int utils_create_directory(const char *path, mode_t mode);
 static int init();
 
 int main(int argc, char **argv) {
+
+    int port = 8080;
+    bool verbose = false;
+    const char *name = "world";
+
+    ta_option opts[] = {
+        TA_INT   ("port",    'p', &port,    "server port"),
+        TA_BOOL  ("verbose", 'v', &verbose, "enable verbose output"),
+        TA_STR   ("name",    'n', &name,    "name to greet"),
+    };
+
+    if (ta_parse(argc, argv, opts, 3, argv[0]) < 0)
+        return 1;
+
+
     int rc;
     if ((rc = init()) != 0) {
         return rc;
@@ -136,22 +157,20 @@ int main(int argc, char **argv) {
 }
 
 int init() {
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        printf("Current working dir: %s\n", cwd);
-    } else {
-        perror("getcwd() error");
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("[build.c] getcwd() error");
         return EXIT_FAILURE;
     }
 
     snprintf(build_dir, sizeof(build_dir), "%s/build", cwd);
     snprintf(build_ninja_path, sizeof(build_ninja_path), "%s/build.ninja", build_dir);
 
-    printf("CWD: %s\n", cwd);
-    printf("Build dir: %s\n", build_dir);
-    printf("build.ninja: %s\n", build_ninja_path);
+    printf("[build.c] CWD: %s\n", cwd);
+    printf("[build.c] Build dir: %s\n", build_dir);
+    printf("[build.c] build.ninja: %s\n", build_ninja_path);
 
     if (utils_create_directory(build_dir, 0755) != 0) {
-        perror("mkdir failed");
+        perror("[build.c] mkdir failed");
         return EXIT_FAILURE;
     }
 
@@ -268,7 +287,7 @@ void ninja_setup_rules(FILE *file, char *build_dir) {
     {
         char compile_command[4096];
         snprintf(compile_command, sizeof(compile_command),
-                 "%scc -MD -MF $out.d -o $out $CFLAGS $IDIRS $in",
+                 "%scc -MMD -MF $out.d -o $out $CFLAGS $IDIRS $in",
                  utils_is_executable_on_path("bear") ? "bear -- " : "");
 
         ninja_add_rule(file, &(NinjaRule){.name = "cc", .command = compile_command, .vars = {
